@@ -3,79 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <title>Jamalese Translator</title>
+
 <style>
     body {
         font-family: Arial, sans-serif;
-        background: #f4f4f4;
+        background: #f2f2f2;
         padding: 30px;
     }
-    .box {
-        max-width: 600px;
+
+    .container {
+        max-width: 700px;
         background: white;
-        padding: 20px;
+        padding: 25px;
         margin: auto;
-        border-radius: 8px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
+
+    h1 {
+        margin-top: 0;
+    }
+
     textarea {
         width: 100%;
-        height: 100px;
+        height: 120px;
         font-size: 16px;
+        padding: 10px;
+        box-sizing: border-box;
     }
+
     button {
         margin-top: 10px;
-        padding: 10px 20px;
+        padding: 10px 25px;
         font-size: 16px;
         cursor: pointer;
     }
-    .output {
+
+    .info {
         margin-top: 15px;
         font-weight: bold;
+    }
+
+    .output {
+        margin-top: 8px;
+        font-size: 18px;
+    }
+
+    .note {
+        margin-top: 15px;
+        font-size: 13px;
+        color: #555;
     }
 </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Jamalese Translator</h2>
-    <p>Auto-detects Jamalese ↔ English</p>
+<div class="container">
+    <h1>Jamalese Translator</h1>
+    <p>Auto-detects Jamalese ↔ English and supports multi-word expressions.</p>
 
-    <textarea id="input" placeholder="Type here..."></textarea>
+    <textarea id="input" placeholder="Type text here..."></textarea>
+
     <br>
-    <button onclick="translate()">Translate</button>
+    <button onclick="translateText()">Translate</button>
 
-    <div class="output" id="direction"></div>
+    <div class="info" id="direction"></div>
     <div class="output" id="result"></div>
+
+    <div class="note">
+        Unknown words are shown in [brackets].
+    </div>
 </div>
 
+<!-- Load full dictionaries -->
 <script src="jamToEng.js"></script>
 <script src="engToJam.js"></script>
+
 <script>
+/* ---------------- Utility ---------------- */
 
-/* -------- Logic -------- */
-
-function detectLanguage(words) {
-    let jam = 0, eng = 0;
-    words.forEach(w => {
-        if (jamToEng[w]) jam++;
-        if (engToJam[w]) eng++;
-    });
-    return jam >= eng ? "jamalese" : "english";
+function tokenize(text) {
+    return text
+        .toLowerCase()
+        .trim()
+        .split(/\s+/);
 }
 
-function translateText(words, dict) {
-    let result = [];
-    let maxLen = Math.max(...Object.keys(dict).map(k => k.split(" ").length));
+function detectLanguage(words) {
+    let jamCount = 0;
+    let engCount = 0;
+
+    words.forEach(w => {
+        if (jamToEng[w]) jamCount++;
+        if (engToJam[w]) engCount++;
+    });
+
+    return jamCount >= engCount ? "jamalese" : "english";
+}
+
+/* -------- Phrase Translation Core -------- */
+
+function translateWithPhrases(words, dict) {
+    const result = [];
+    const keys = Object.keys(dict);
+    const maxLen = Math.max(...keys.map(k => k.split(" ").length));
     let i = 0;
 
     while (i < words.length) {
         let matched = false;
 
         for (let size = Math.min(maxLen, words.length - i); size > 0; size--) {
-            let chunk = words.slice(i, i + size).join(" ");
+            const chunk = words.slice(i, i + size).join(" ");
             if (dict[chunk]) {
-                let val = dict[chunk];
-                if (Array.isArray(val)) val = val[0];
-                result.push(val);
+                let value = dict[chunk];
+                if (Array.isArray(value)) value = value[0];
+                result.push(value);
                 i += size;
                 matched = true;
                 break;
@@ -87,21 +129,31 @@ function translateText(words, dict) {
             i++;
         }
     }
+
     return result.join(" ");
 }
 
-function translate() {
-    const input = document.getElementById("input").value.toLowerCase().trim();
-    const words = input.split(/\s+/);
+/* ------------- Main Translate ------------- */
 
+function translateText() {
+    const input = document.getElementById("input").value;
+    if (!input.trim()) {
+        document.getElementById("direction").innerText = "";
+        document.getElementById("result").innerText = "";
+        return;
+    }
+
+    const words = tokenize(input);
     const lang = detectLanguage(words);
 
-    let output, direction;
+    let output;
+    let direction;
+
     if (lang === "jamalese") {
-        output = translateText(words, jamToEng);
+        output = translateWithPhrases(words, jamToEng);
         direction = "Jamalese → English";
     } else {
-        output = translateText(words, engToJam);
+        output = translateWithPhrases(words, engToJam);
         direction = "English → Jamalese";
     }
 
