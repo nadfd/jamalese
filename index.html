@@ -29,7 +29,6 @@ body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
-    transition: background 0.3s, color 0.3s;
 }
 
 .container {
@@ -57,7 +56,7 @@ h1 {
     font-size: 28px;
 }
 
-/* ---------- Dark Mode Toggle ---------- */
+/* -------- Dark Toggle -------- */
 
 .toggle-wrap {
     display: flex;
@@ -81,7 +80,6 @@ h1 {
     inset: 0;
     background: #ccc;
     border-radius: 26px;
-    transition: 0.3s;
 }
 
 .slider::before {
@@ -104,7 +102,7 @@ input:checked + .slider::before {
     transform: translateX(26px);
 }
 
-/* ---------- Controls ---------- */
+/* -------- Controls -------- */
 
 .controls {
     margin-bottom: 15px;
@@ -112,26 +110,24 @@ input:checked + .slider::before {
 
 select {
     padding: 8px 12px;
-    font-size: 14px;
     border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--card);
     color: var(--text);
 }
 
-/* ---------- Two Pane Layout ---------- */
+/* -------- Two Pane Grid (FIXED) -------- */
 
 .panes {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
-    width: 100%;
 }
 
 .pane {
-    flex: 1 1 0;
-    min-width: 0; /* 🔑 prevents overlap */
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 textarea {
@@ -147,13 +143,12 @@ textarea {
 }
 
 .output-box {
-    flex: 1;
+    min-height: 180px;
     padding: 15px;
     border-radius: 12px;
     background: rgba(0,0,0,0.03);
     font-size: 18px;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
+    word-break: break-word;
 }
 
 body.dark .output-box {
@@ -165,7 +160,7 @@ body.dark .output-box {
     margin-bottom: 8px;
 }
 
-/* ---------- Copy Button ---------- */
+/* -------- Copy Button -------- */
 
 .copy-btn {
     margin-top: 10px;
@@ -174,24 +169,34 @@ body.dark .output-box {
     border: 1px solid var(--border);
     background: var(--card);
     cursor: pointer;
-    font-size: 14px;
     align-self: flex-start;
 }
 
-/* ---------- Footer ---------- */
+/* -------- Footer -------- */
 
 .footer {
     margin-top: 20px;
     font-size: 13px;
     color: var(--muted);
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
 }
 
-/* ---------- Mobile ---------- */
+.footer a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* -------- Mobile -------- */
 
 @media (max-width: 700px) {
     .panes {
-        flex-direction: column;
+        grid-template-columns: 1fr;
     }
 }
 </style>
@@ -236,7 +241,14 @@ body.dark .output-box {
 </div>
 
 <div class="footer">
-    Jamalese Translator v1.0 • Created by <b>nadfd</b> (GitHub)
+    <span>
+        View the full dictionary at
+        <a href="https://newhs.cc/dict" target="_blank">https://newhs.cc/dict</a>
+    </span>
+    <span>
+        Jamalese Translator v1.0 • Created by
+        <a href="https://github.com/nadfd" target="_blank"><b>nadfd</b></a>
+    </span>
 </div>
 
 </div>
@@ -278,7 +290,6 @@ function translateWithPhrases(words, dict) {
 
     while (i < words.length) {
         let matched = false;
-
         for (let size = Math.min(maxLen, words.length - i); size > 0; size--) {
             const chunk = words.slice(i, i + size).join(" ");
             if (dict[chunk]) {
@@ -290,7 +301,6 @@ function translateWithPhrases(words, dict) {
                 break;
             }
         }
-
         if (!matched) {
             result.push(words[i]);
             i++;
@@ -323,14 +333,10 @@ function translateText() {
             output = translateWithPhrases(words, engToJam);
             direction = "English → Jamalese (auto)";
         }
-    }
-
-    if (mode === "jam-en") {
+    } else if (mode === "jam-en") {
         output = translateWithPhrases(words, jamToEng);
         direction = "Jamalese → English";
-    }
-
-    if (mode === "en-jam") {
+    } else {
         output = translateWithPhrases(words, engToJam);
         direction = "English → Jamalese";
     }
@@ -341,9 +347,7 @@ function translateText() {
 
 function copyResult() {
     const text = document.getElementById("result").innerText;
-    if (!text) return;
-    navigator.clipboard.writeText(text);
-    alert("Copied to clipboard!");
+    if (text) navigator.clipboard.writeText(text);
 }
 
 document.getElementById("input").addEventListener("input", translateText);
