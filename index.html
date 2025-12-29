@@ -3,100 +3,196 @@
 <head>
 <meta charset="UTF-8">
 <title>Jamalese Translator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f2f2f2;
-        padding: 30px;
-    }
+:root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #222;
+    --muted: #666;
+    --accent: #5b6cff;
+    --border: #ddd;
+}
 
-    .container {
-        max-width: 700px;
-        background: white;
-        padding: 25px;
-        margin: auto;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+body.dark {
+    --bg: #0f1220;
+    --card: #181c36;
+    --text: #f0f0f0;
+    --muted: #aaa;
+    --accent: #7c8cff;
+    --border: #2b2f55;
+}
 
-    h1 {
-        margin-top: 0;
-    }
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background 0.3s, color 0.3s;
+}
 
-    textarea {
-        width: 100%;
-        height: 120px;
-        font-size: 16px;
-        padding: 10px;
-        box-sizing: border-box;
-    }
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
 
-    button {
-        margin-top: 10px;
-        padding: 10px 25px;
-        font-size: 16px;
-        cursor: pointer;
-    }
+.card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
 
-    .info {
-        margin-top: 15px;
-        font-weight: bold;
-    }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
 
-    .output {
-        margin-top: 8px;
-        font-size: 18px;
-    }
+h1 {
+    margin: 0;
+    font-size: 28px;
+}
 
-    .note {
-        margin-top: 15px;
-        font-size: 13px;
-        color: #555;
-    }
+.controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+select, button {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+}
+
+button.primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+}
+
+textarea {
+    width: 100%;
+    height: 130px;
+    margin-top: 15px;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    resize: vertical;
+}
+
+.output-box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.03);
+}
+
+body.dark .output-box {
+    background: rgba(255,255,255,0.05);
+}
+
+.direction {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.output {
+    font-size: 18px;
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.toggle {
+    font-size: 13px;
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Jamalese Translator</h1>
-    <p>Auto-detects Jamalese ↔ English and supports multi-word expressions.</p>
+    <div class="card">
+        <header>
+            <h1>Jamalese Translator</h1>
+            <button class="toggle" onclick="toggleDarkMode()">🌙 Dark mode</button>
+        </header>
 
-    <textarea id="input" placeholder="Type text here..."></textarea>
+        <div class="controls">
+            <select id="mode">
+                <option value="auto">Auto-detect</option>
+                <option value="jam-en">Jamalese → English</option>
+                <option value="en-jam">English → Jamalese</option>
+            </select>
 
-    <br>
-    <button onclick="translateText()">Translate</button>
+            <button class="primary" onclick="translateText()">Translate</button>
+        </div>
 
-    <div class="info" id="direction"></div>
-    <div class="output" id="result"></div>
+        <textarea id="input" placeholder="Type text here..."></textarea>
 
+        <div class="output-box">
+            <div class="direction" id="direction"></div>
+            <div class="output" id="result"></div>
+        </div>
+
+        <div class="footer">
+            <span>• Longest phrase matching enabled</span>
+            <span>Jamalese Translator v1.0 • Created by <b>nadfd</b> (GitHub)</span>
+        </div>
     </div>
 </div>
 
-<!-- Load full dictionaries -->
+<!-- Dictionaries -->
 <script src="jamToEng.js"></script>
 <script src="engToJam.js"></script>
 
 <script>
-/* ---------------- Utility ---------------- */
+/* ---------------- Dark Mode ---------------- */
+
+function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+    localStorage.setItem(
+        "darkMode",
+        document.body.classList.contains("dark")
+    );
+}
+
+if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+}
+
+/* ---------------- Utilities ---------------- */
 
 function tokenize(text) {
-    return text
-        .toLowerCase()
-        .trim()
-        .split(/\s+/);
+    return text.toLowerCase().trim().split(/\s+/);
 }
 
 function detectLanguage(words) {
-    let jamCount = 0;
-    let engCount = 0;
-
+    let jam = 0, eng = 0;
     words.forEach(w => {
-        if (jamToEng[w]) jamCount++;
-        if (engToJam[w]) engCount++;
+        if (jamToEng[w]) jam++;
+        if (engToJam[w]) eng++;
     });
-
-    return jamCount >= engCount ? "jamalese" : "english";
+    return jam >= eng ? "jam" : "eng";
 }
 
 /* -------- Phrase Translation Core -------- */
@@ -123,40 +219,47 @@ function translateWithPhrases(words, dict) {
         }
 
         if (!matched) {
-            result.push(words[i]);
+            result.push("[" + words[i] + "]");
             i++;
         }
     }
-
     return result.join(" ");
 }
 
-/* ------------- Main Translate ------------- */
+/* ---------------- Translate ---------------- */
 
 function translateText() {
     const input = document.getElementById("input").value;
-    if (!input.trim()) {
-        document.getElementById("direction").innerText = "";
-        document.getElementById("result").innerText = "";
-        return;
+    if (!input.trim()) return;
+
+    const mode = document.getElementById("mode").value;
+    const words = tokenize(input);
+
+    let output, direction;
+
+    if (mode === "auto") {
+        const detected = detectLanguage(words);
+        if (detected === "jam") {
+            output = translateWithPhrases(words, jamToEng);
+            direction = "Jamalese → English (auto)";
+        } else {
+            output = translateWithPhrases(words, engToJam);
+            direction = "English → Jamalese (auto)";
+        }
     }
 
-    const words = tokenize(input);
-    const lang = detectLanguage(words);
-
-    let output;
-    let direction;
-
-    if (lang === "jamalese") {
+    if (mode === "jam-en") {
         output = translateWithPhrases(words, jamToEng);
         direction = "Jamalese → English";
-    } else {
+    }
+
+    if (mode === "en-jam") {
         output = translateWithPhrases(words, engToJam);
         direction = "English → Jamalese";
     }
 
     document.getElementById("direction").innerText = direction;
-    document.getElementById("result").innerText = output;
+    document.getElementById("result").innerText = "→ " + output;
 }
 </script>
 
