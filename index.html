@@ -6,20 +6,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-:root {
-    --bg: #f4f6fb;
-    --card: #ffffff;
-    --text: #222;
-    --muted: #666;
-    --accent: #5b6cff;
-    --border: #ddd;
+/* ---------- Global ---------- */
+* {
+    box-sizing: border-box;
 }
 
-body.dark {
-    --bg: #0f1220;
-    --card: #181c36;
-    --text: #f0f0f0;
-    --muted: #aaa;
+:root {
+    --bg: #0b0e1a;
+    --card: #151a33;
+    --text: #f1f3ff;
+    --muted: #aab;
     --accent: #7c8cff;
     --border: #2b2f55;
 }
@@ -27,23 +23,25 @@ body.dark {
 body {
     margin: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg);
+    background: radial-gradient(circle at top, #121633, #070914);
     color: var(--text);
 }
 
+/* ---------- Layout ---------- */
 .container {
     max-width: 1100px;
-    margin: 40px auto;
+    margin: 60px auto;
     padding: 20px;
 }
 
 .card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 25px;
-    box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+    background: linear-gradient(145deg, #151a33, #10142b);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
 }
 
+/* ---------- Header ---------- */
 header {
     display: flex;
     justify-content: space-between;
@@ -56,8 +54,7 @@ h1 {
     font-size: 28px;
 }
 
-/* -------- Dark Toggle -------- */
-
+/* ---------- Dark Toggle ---------- */
 .toggle-wrap {
     display: flex;
     align-items: center;
@@ -78,7 +75,7 @@ h1 {
 .slider {
     position: absolute;
     inset: 0;
-    background: #ccc;
+    background: #444;
     border-radius: 26px;
 }
 
@@ -102,22 +99,21 @@ input:checked + .slider::before {
     transform: translateX(26px);
 }
 
-/* -------- Controls -------- */
-
+/* ---------- Controls ---------- */
 .controls {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
 select {
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--card);
     color: var(--text);
+    font-size: 14px;
 }
 
-/* -------- Two Pane Grid (FIXED) -------- */
-
+/* ---------- Two Pane System (FIXED) ---------- */
 .panes {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -127,55 +123,53 @@ select {
 .pane {
     display: flex;
     flex-direction: column;
-    min-width: 0;
+    height: 260px; /* 🔑 hard sync height */
 }
 
 textarea {
-    width: 100%;
-    height: 180px;
-    padding: 12px;
+    flex: 1;
+    padding: 14px;
     font-size: 16px;
-    border-radius: 12px;
+    border-radius: 14px;
     border: 1px solid var(--border);
-    background: var(--card);
+    background: #0e1228;
     color: var(--text);
-    resize: vertical;
+    resize: none;              /* 🔑 disable resizing */
+    outline: none;
 }
 
 .output-box {
-    min-height: 180px;
-    padding: 15px;
-    border-radius: 12px;
-    background: rgba(0,0,0,0.03);
-    font-size: 18px;
-    word-break: break-word;
-}
-
-body.dark .output-box {
+    flex: 1;
+    padding: 14px;
+    border-radius: 14px;
     background: rgba(255,255,255,0.06);
+    font-size: 18px;
+    overflow-y: auto;
+    word-break: break-word;
 }
 
 .direction {
     font-weight: bold;
     margin-bottom: 8px;
+    font-size: 14px;
+    color: var(--muted);
 }
 
-/* -------- Copy Button -------- */
-
+/* ---------- Copy Button ---------- */
 .copy-btn {
     margin-top: 10px;
-    padding: 8px 12px;
-    border-radius: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
     border: 1px solid var(--border);
-    background: var(--card);
+    background: #0e1228;
+    color: var(--text);
     cursor: pointer;
     align-self: flex-start;
 }
 
-/* -------- Footer -------- */
-
+/* ---------- Footer ---------- */
 .footer {
-    margin-top: 20px;
+    margin-top: 22px;
     font-size: 13px;
     color: var(--muted);
     display: flex;
@@ -192,11 +186,14 @@ body.dark .output-box {
     text-decoration: underline;
 }
 
-/* -------- Mobile -------- */
-
+/* ---------- Mobile ---------- */
 @media (max-width: 700px) {
     .panes {
         grid-template-columns: 1fr;
+    }
+
+    .pane {
+        height: 220px;
     }
 }
 </style>
@@ -211,7 +208,7 @@ body.dark .output-box {
     <div class="toggle-wrap">
         🌞
         <label class="switch">
-            <input type="checkbox" id="darkToggle" onchange="toggleDarkMode()">
+            <input type="checkbox" id="darkToggle" checked>
             <span class="slider"></span>
         </label>
         🌙
@@ -219,7 +216,7 @@ body.dark .output-box {
 </header>
 
 <div class="controls">
-    <select id="mode" onchange="translateText()">
+    <select id="mode">
         <option value="auto">Auto-detect</option>
         <option value="jam-en">Jamalese → English</option>
         <option value="en-jam">English → Jamalese</option>
@@ -246,7 +243,7 @@ body.dark .output-box {
         <a href="https://newhs.cc/dict" target="_blank">https://newhs.cc/dict</a>
     </span>
     <span>
-        Jamalese Translator v2.1 • Created by
+        Jamalese Translator v1.0 • Created by
         <a href="https://github.com/nadfd" target="_blank"><b>nadfd</b></a>
     </span>
 </div>
@@ -258,17 +255,20 @@ body.dark .output-box {
 <script src="engToJam.js"></script>
 
 <script>
-function toggleDarkMode() {
-    const enabled = document.getElementById("darkToggle").checked;
-    document.body.classList.toggle("dark", enabled);
-    localStorage.setItem("darkMode", enabled);
-}
+/* ---------- Dark Mode ---------- */
+const toggle = document.getElementById("darkToggle");
+toggle.checked = localStorage.getItem("dark") !== "false";
 
-if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark");
-    document.getElementById("darkToggle").checked = true;
+function applyDark() {
+    document.body.style.background = toggle.checked
+        ? "radial-gradient(circle at top, #121633, #070914)"
+        : "#f4f6fb";
+    localStorage.setItem("dark", toggle.checked);
 }
+toggle.addEventListener("change", applyDark);
+applyDark();
 
+/* ---------- Translation ---------- */
 function tokenize(text) {
     return text.toLowerCase().trim().split(/\s+/);
 }
@@ -293,9 +293,9 @@ function translateWithPhrases(words, dict) {
         for (let size = Math.min(maxLen, words.length - i); size > 0; size--) {
             const chunk = words.slice(i, i + size).join(" ");
             if (dict[chunk]) {
-                let value = dict[chunk];
-                if (Array.isArray(value)) value = value[0];
-                result.push(value);
+                let val = dict[chunk];
+                if (Array.isArray(val)) val = val[0];
+                result.push(val);
                 i += size;
                 matched = true;
                 break;
@@ -310,47 +310,44 @@ function translateWithPhrases(words, dict) {
 }
 
 function translateText() {
-    const input = document.getElementById("input").value;
-    const resultBox = document.getElementById("result");
-    const directionBox = document.getElementById("direction");
-
-    if (!input.trim()) {
-        resultBox.innerText = "";
-        directionBox.innerText = "";
+    const text = document.getElementById("input").value;
+    const result = document.getElementById("result");
+    const dir = document.getElementById("direction");
+    if (!text.trim()) {
+        result.textContent = "";
+        dir.textContent = "";
         return;
     }
 
-    const words = tokenize(input);
+    const words = tokenize(text);
     const mode = document.getElementById("mode").value;
-    let output, direction;
 
     if (mode === "auto") {
-        const detected = detectLanguage(words);
-        if (detected === "jam") {
-            output = translateWithPhrases(words, jamToEng);
-            direction = "Jamalese → English (auto)";
+        const d = detectLanguage(words);
+        if (d === "jam") {
+            result.textContent = translateWithPhrases(words, jamToEng);
+            dir.textContent = "Jamalese → English (auto)";
         } else {
-            output = translateWithPhrases(words, engToJam);
-            direction = "English → Jamalese (auto)";
+            result.textContent = translateWithPhrases(words, engToJam);
+            dir.textContent = "English → Jamalese (auto)";
         }
     } else if (mode === "jam-en") {
-        output = translateWithPhrases(words, jamToEng);
-        direction = "Jamalese → English";
+        result.textContent = translateWithPhrases(words, jamToEng);
+        dir.textContent = "Jamalese → English";
     } else {
-        output = translateWithPhrases(words, engToJam);
-        direction = "English → Jamalese";
+        result.textContent = translateWithPhrases(words, engToJam);
+        dir.textContent = "English → Jamalese";
     }
-
-    directionBox.innerText = direction;
-    resultBox.innerText = output;
-}
-
-function copyResult() {
-    const text = document.getElementById("result").innerText;
-    if (text) navigator.clipboard.writeText(text);
 }
 
 document.getElementById("input").addEventListener("input", translateText);
+document.getElementById("mode").addEventListener("change", translateText);
+
+/* ---------- Copy ---------- */
+function copyResult() {
+    const t = document.getElementById("result").innerText;
+    if (t) navigator.clipboard.writeText(t);
+}
 </script>
 
 </body>
