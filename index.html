@@ -40,7 +40,7 @@ body {
     color: var(--text);
 }
 
-/* ---------- Smooth Theme Transitions ---------- */
+/* ---------- Smooth Transitions ---------- */
 body,
 .card,
 textarea,
@@ -49,12 +49,14 @@ select,
 .copy-btn,
 header,
 .footer,
-.pane {
+.pane,
+h1 {
     transition:
         background-color 0.4s ease,
         color 0.4s ease,
         border-color 0.4s ease,
-        box-shadow 0.4s ease;
+        box-shadow 0.4s ease,
+        opacity 0.25s ease;
 }
 
 /* ---------- Layout ---------- */
@@ -82,6 +84,7 @@ header {
 h1 {
     margin: 0;
     font-size: 28px;
+    color: var(--text);
 }
 
 /* ---------- Dark Toggle ---------- */
@@ -153,7 +156,7 @@ select {
     position: relative;
     display: flex;
     flex-direction: column;
-    height: 300px; /* ⬅ increased height */
+    height: 300px;
 }
 
 textarea {
@@ -171,7 +174,7 @@ textarea {
 .output-box {
     flex: 1;
     padding: 14px;
-    padding-bottom: 54px; /* ⬅ space for icon */
+    padding-bottom: 54px;
     border-radius: 14px;
     background-color: rgba(0,0,0,0.04);
     font-size: 18px;
@@ -189,7 +192,7 @@ textarea {
     color: var(--muted);
 }
 
-/* ---------- Copy Button (ICON) ---------- */
+/* ---------- Copy Button ---------- */
 .copy-btn {
     position: absolute;
     bottom: 10px;
@@ -205,6 +208,14 @@ textarea {
     align-items: center;
     justify-content: center;
     font-size: 18px;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+.copy-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* ---------- Footer ---------- */
@@ -274,7 +285,9 @@ textarea {
             <div class="direction" id="direction"></div>
             <div id="result"></div>
         </div>
-        <button class="copy-btn" onclick="copyResult()" title="Copy">📋</button>
+        <button class="copy-btn" id="copyBtn" onclick="copyResult()" title="Copy">
+            📋
+        </button>
     </div>
 </div>
 
@@ -367,26 +380,34 @@ function translate(words, dict) {
 }
 
 function update() {
+    const copyBtn = document.getElementById("copyBtn");
+
     if (!input.value.trim()) {
         result.textContent = "";
         direction.textContent = "";
+        copyBtn.classList.remove("visible");
         return;
     }
 
     const words = tokenize(input.value);
     const mode = modeSelect.value;
 
+    let translated = "";
+
     if (mode === "auto") {
         const d = detect(words);
         direction.textContent = d === "jam"
             ? "Jamalese → English (auto)"
             : "English → Jamalese (auto)";
-        result.textContent = translate(words, d === "jam" ? jamToEng : engToJam);
+        translated = translate(words, d === "jam" ? jamToEng : engToJam);
     } else {
         direction.textContent =
             mode === "jam-en" ? "Jamalese → English" : "English → Jamalese";
-        result.textContent = translate(words, mode === "jam-en" ? jamToEng : engToJam);
+        translated = translate(words, mode === "jam-en" ? jamToEng : engToJam);
     }
+
+    result.textContent = translated;
+    copyBtn.classList.toggle("visible", translated.trim().length > 0);
 }
 
 const input = document.getElementById("input");
