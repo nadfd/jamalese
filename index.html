@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Jamalese Translator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Base + platform styles -->
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="desktop.css" media="(min-width: 701px)">
+<link rel="stylesheet" href="mobile.css" media="(max-width: 700px)">
+</head>
+
+<body>
+<div class="container">
+  <div class="card">
+
+    <header>
+      <h1>Jamalese Translator</h1>
+
+      <div class="toggle-wrap">
+        ☀️
+        <label class="switch">
+          <input type="checkbox" id="darkToggle" checked>
+          <span class="slider"></span>
+        </label>
+        🌙
+      </div>
+    </header>
+
+    <!-- Language bars -->
+    <div class="lang-row">
+      <div class="lang-bar left">
+        <button class="lang active" data-lang="auto">Auto</button>
+        <button class="lang" data-lang="jam">Zamœlis</button>
+        <button class="lang" data-lang="eng">English</button>
+      </div>
+
+      <!-- Swap -->
+      <button class="swap-btn" id="swapBtn" aria-label="Swap languages">⇄</button>
+
+      <div class="lang-bar right">
+        <button class="lang active" data-lang="eng">English</button>
+        <button class="lang" data-lang="jam">Zamœlis</button>
+      </div>
+    </div>
+
+    <!-- Panes -->
+    <div class="panes">
+      <div class="pane">
+        <textarea id="input" placeholder="Type text here..."></textarea>
+      </div>
+
+      <div class="pane">
+        <div class="output-box">
+          <div class="direction" id="direction"></div>
+          <div id="result"></div>
+        </div>
+
+        <button class="copy-btn" id="copyBtn" onclick="copyResult()">📋</button>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <span>
+        View the full dictionary at
+        <a href="https://newhs.cc/dict" target="_blank">newhs.cc/dict</a>
+      </span>
+      <span>
+        Created by <a href="https://github.com/nadfd" target="_blank">nadfd</a>
+      </span>
+    </footer>
+
+  </div>
+</div>
+
+<!-- Dictionary -->
+<script src="https://newhs.cc/words.js"></script>
+
+<!-- App logic -->
+<script src="app.js"></script>
+</body>
+</html>
