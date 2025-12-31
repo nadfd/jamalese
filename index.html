@@ -6,208 +6,180 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-* { box-sizing: border-box; }
+*{box-sizing:border-box}
 
-:root {
-  --bg:#f4f6fb;
-  --card:#ffffff;
-  --text:#111;
-  --muted:#555;
-  --accent:#4b5cff;
-  --border:#d6d9ee;
-  --input:#ffffff;
-}
-
-[data-theme="dark"] {
-  --bg:#070914;
-  --card:#151a33;
-  --text:#f1f3ff;
-  --muted:#aab;
-  --accent:#7c8cff;
-  --border:#2b2f55;
-  --input:#0e1228;
+:root{
+--bg:#f4f6fb;
+--card:#fff;
+--text:#111;
+--muted:#555;
+--accent:#4b5cff;
+--border:#d6d9ee;
+--input:#fff;
 }
 
-body {
-  margin:0;
-  font-family:system-ui,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  transition:background-color .4s,color .4s;
+[data-theme="dark"]{
+--bg:#070914;
+--card:#151a33;
+--text:#f1f3ff;
+--muted:#aab;
+--accent:#7c8cff;
+--border:#2b2f55;
+--input:#0e1228;
 }
 
-.container {
-  max-width:1100px;
-  margin:60px auto;
-  padding:20px;
+body{
+margin:0;
+font-family:system-ui,sans-serif;
+background:var(--bg);
+color:var(--text);
+transition:.4s;
 }
 
-.card {
-  background:var(--card);
-  border-radius:20px;
-  padding:28px;
-  box-shadow:0 30px 80px rgba(0,0,0,.35);
-  transition:background-color .4s;
+.container{max-width:1100px;margin:60px auto;padding:20px}
+.card{
+background:var(--card);
+border-radius:20px;
+padding:28px;
+box-shadow:0 30px 80px rgba(0,0,0,.35);
+transition:.4s;
 }
 
-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
 }
 
-h1 {
-  margin:0;
-  font-size:28px;
-  transition:color .4s;
-}
+h1{margin:0;font-size:28px}
 
-/* ---------- Dark Toggle ---------- */
-.toggle-wrap {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:18px;
+/* ---------- Dark toggle ---------- */
+.toggle-wrap{display:flex;align-items:center;gap:8px;font-size:18px}
+.switch{
+width:52px;height:28px;border-radius:999px;
+background:#999;position:relative;cursor:pointer;
+transition:.3s;
 }
+.switch::after{
+content:"";width:22px;height:22px;border-radius:50%;
+background:white;position:absolute;top:3px;left:3px;
+transition:.3s;
+}
+[data-theme="dark"] .switch{background:var(--accent)}
+[data-theme="dark"] .switch::after{transform:translateX(24px)}
 
-.switch {
-  width:52px;
-  height:28px;
-  background:#999;
-  border-radius:999px;
-  position:relative;
-  cursor:pointer;
-  transition:background .3s;
-}
+/* ---------- Layout ---------- */
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:700px){.panes{grid-template-columns:1fr}}
 
-.switch::after {
-  content:"";
-  width:22px;
-  height:22px;
-  background:white;
-  border-radius:50%;
-  position:absolute;
-  top:3px;
-  left:3px;
-  transition:transform .3s;
-}
-
-[data-theme="dark"] .switch {
-  background:var(--accent);
-}
-[data-theme="dark"] .switch::after {
-  transform:translateX(24px);
-}
-
-/* ---------- Panes ---------- */
-.panes {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
-}
-
-.pane {
-  display:flex;
-  flex-direction:column;
-}
+.pane{display:flex;flex-direction:column}
 
 /* ---------- Tabs ---------- */
-.lang-tabs {
-  position:relative;
-  display:flex;
-  gap:20px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:8px;
+.lang-tabs{
+position:relative;
+display:flex;
+gap:20px;
+border-bottom:1px solid var(--border);
+margin-bottom:8px;
 }
 
-.lang-tab {
-  padding:8px 0;
-  cursor:pointer;
-  color:var(--muted);
-  transition:color .25s;
+.lang-tab{
+padding:8px 0;
+cursor:pointer;
+color:var(--muted);
+transition:color .25s;
 }
 
-.lang-tab.active {
-  color:var(--accent);
+.lang-tab.active{color:var(--accent)}
+
+.underline{
+position:absolute;
+bottom:-1px;
+height:2px;
+background:var(--accent);
+transition:left .3s,width .3s;
 }
 
-.underline {
-  position:absolute;
-  bottom:-1px;
-  height:2px;
-  background:var(--accent);
-  transition:left .3s,width .3s;
+/* ---------- Swap ---------- */
+.swap-btn{
+align-self:center;
+margin:8px 0 16px;
+border:none;
+background:none;
+font-size:20px;
+cursor:pointer;
+color:var(--muted);
+transition:.2s;
 }
+.swap-btn:hover{color:var(--accent)}
 
 /* ---------- Input / Output ---------- */
-textarea {
-  height:260px;
-  resize:none;
-  padding:14px;
-  font-size:16px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--input);
-  color:var(--text);
-  transition:.4s;
+textarea{
+height:260px;
+resize:none;
+padding:14px;
+font-size:16px;
+border-radius:14px;
+border:1px solid var(--border);
+background:var(--input);
+color:var(--text);
+transition:.4s;
 }
 
-.output-box {
-  position:relative;
-  height:260px;
-  padding:14px 14px 54px;
-  border-radius:14px;
-  background:rgba(0,0,0,.04);
-  overflow-y:auto;
-  font-size:18px;
-  transition:.4s;
+.output-box{
+position:relative;
+height:260px;
+padding:14px 14px 54px;
+border-radius:14px;
+background:rgba(0,0,0,.04);
+overflow-y:auto;
+font-size:18px;
+transition:.4s;
+}
+[data-theme="dark"] .output-box{background:rgba(255,255,255,.06)}
+
+/* ---------- Copy ---------- */
+.copy-btn{
+position:absolute;
+bottom:10px;
+left:10px;
+display:flex;
+align-items:center;
+gap:6px;
+padding:6px 10px;
+border-radius:10px;
+border:1px solid var(--border);
+background:var(--input);
+cursor:pointer;
+font-size:14px;
+opacity:0;
+pointer-events:none;
+transition:.25s;
 }
 
-[data-theme="dark"] .output-box {
-  background:rgba(255,255,255,.06);
+.copy-btn.visible{
+opacity:1;
+pointer-events:auto;
 }
 
-/* ---------- Copy Button ---------- */
-.copy-btn {
-  position:absolute;
-  bottom:10px;
-  left:10px;
-  width:38px;
-  height:38px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:var(--input);
-  cursor:pointer;
-  font-size:18px;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .25s;
-}
-
-.copy-btn.visible {
-  opacity:1;
-  pointer-events:auto;
+.copy-btn.copied{
+opacity:1;
+pointer-events:none;
+color:var(--accent);
+border-color:var(--accent);
 }
 
 /* ---------- Footer ---------- */
-.footer {
-  margin-top:22px;
-  font-size:13px;
-  color:var(--muted);
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
+.footer{
+margin-top:22px;
+font-size:13px;
+color:var(--muted);
+display:flex;
+justify-content:space-between;
+flex-wrap:wrap;
 }
-
-.footer a {
-  color:var(--accent);
-  text-decoration:none;
-}
-
-@media (max-width:700px) {
-  .panes { grid-template-columns:1fr; }
-}
+.footer a{color:var(--accent);text-decoration:none}
 </style>
 </head>
 
@@ -216,173 +188,207 @@ textarea {
 <div class="card">
 
 <header>
-  <h1>Jamalese Translator</h1>
-  <div class="toggle-wrap">
-    ☀️ <div class="switch" id="themeSwitch"></div> 🌙
-  </div>
+<h1>Jamalese Translator</h1>
+<div class="toggle-wrap">
+☀️ <div class="switch" id="themeSwitch"></div> 🌙
+</div>
 </header>
 
 <div class="panes">
 
-<!-- INPUT -->
+<!-- SOURCE -->
 <div class="pane">
-  <div class="lang-tabs" id="sourceTabs">
-    <div class="lang-tab active" data-lang="auto">Auto</div>
-    <div class="lang-tab" data-lang="jam">Zamœlis</div>
-    <div class="lang-tab" data-lang="eng">English</div>
-    <div class="underline"></div>
-  </div>
-  <textarea id="input" placeholder="Type text here..."></textarea>
+<div class="lang-tabs" id="sourceTabs">
+<div class="lang-tab active" data-lang="auto">Auto</div>
+<div class="lang-tab" data-lang="jam">Zamœlis</div>
+<div class="lang-tab" data-lang="eng">English</div>
+<div class="underline"></div>
+</div>
+<textarea id="input" placeholder="Type text here..."></textarea>
 </div>
 
-<!-- OUTPUT -->
+<!-- TARGET -->
 <div class="pane">
-  <div class="lang-tabs" id="targetTabs">
-    <div class="lang-tab active" data-lang="eng">English</div>
-    <div class="lang-tab" data-lang="jam">Zamœlis</div>
-    <div class="underline"></div>
-  </div>
-  <div class="output-box">
-    <div id="result"></div>
-    <button class="copy-btn" id="copyBtn">📋</button>
-  </div>
+<div class="lang-tabs" id="targetTabs">
+<div class="lang-tab active" data-lang="eng">English</div>
+<div class="lang-tab" data-lang="jam">Zamœlis</div>
+<div class="underline"></div>
+</div>
+<button class="swap-btn" id="swapBtn">⇄</button>
+<div class="output-box">
+<div id="result"></div>
+<button class="copy-btn" id="copyBtn">
+<span id="copyIcon">📋</span>
+<span id="copyText">Copy</span>
+</button>
+</div>
 </div>
 
 </div>
 
 <div class="footer">
-  <span>View the full dictionary at <a href="https://newhs.cc/dict">newhs.cc/dict</a></span>
-  <span>Created by <a href="https://github.com/nadfd">nadfd</a></span>
+<span>View the full dictionary at <a href="https://newhs.cc/dict">newhs.cc/dict</a></span>
+<span>Created by <a href="https://github.com/nadfd">nadfd</a></span>
 </div>
 
 </div>
 </div>
 
-<!-- ---------- Dictionary Source ---------- -->
 <script src="https://newhs.cc/words.js"></script>
 
 <script>
-/* ---------- Build Dictionaries (EXACT LOGIC FROM REFERENCE) ---------- */
-const engToJam = {};
-const jamToEng = {};
-const PRIORITY = { yes: ["za","lah","ti"] };
+/* ---------- Dictionary build (unchanged logic) ---------- */
+const engToJam={}, jamToEng={}, PRIORITY={yes:["za","lah","ti"]};
 
-for (const [jam, engRaw] of dictionary) {
-  const parts = engRaw.split(",");
-  const meanings = [];
-
-  for (let part of parts) {
-    part = part.replace(/\s*\(.*?\)\s*/g,"").trim().toLowerCase();
-    if (!part) continue;
-
-    meanings.push(part);
-
-    if (!engToJam[part]) engToJam[part] = [];
-    if (!engToJam[part].includes(jam)) engToJam[part].push(jam);
-  }
-
-  jamToEng[jam] = [...new Set(meanings)];
+for(const [jam,engRaw] of dictionary){
+const parts=engRaw.split(",");
+const meanings=[];
+for(let p of parts){
+p=p.replace(/\s*\(.*?\)\s*/g,"").trim().toLowerCase();
+if(!p)continue;
+meanings.push(p);
+if(!engToJam[p])engToJam[p]=[];
+if(!engToJam[p].includes(jam))engToJam[p].push(jam);
+}
+jamToEng[jam]=[...new Set(meanings)];
 }
 
-/* ---------- Dark Mode ---------- */
-const themeSwitch = document.getElementById("themeSwitch");
-document.documentElement.dataset.theme =
-  localStorage.getItem("dark")==="false" ? "light":"dark";
-
-themeSwitch.onclick = () => {
-  const dark = document.documentElement.dataset.theme !== "dark";
-  document.documentElement.dataset.theme = dark ? "dark":"light";
-  localStorage.setItem("dark",dark);
+/* ---------- Dark mode ---------- */
+const themeSwitch=document.getElementById("themeSwitch");
+document.documentElement.dataset.theme=
+localStorage.getItem("dark")==="false"?"light":"dark";
+themeSwitch.onclick=()=>{
+const d=document.documentElement.dataset.theme!=="dark";
+document.documentElement.dataset.theme=d?"dark":"light";
+localStorage.setItem("dark",d);
 };
 
-/* ---------- Tokenization / Translation ---------- */
-function tokenize(text){
-  return text.replace(/([?.!,])/g," $1 ")
-    .trim().split(/\s+/).map(t=>({
-      raw:t, lower:t.toLowerCase(),
-      punct:/^[?.!,]$/.test(t),
-      case:t===t.toUpperCase()?"upper":
-           t[0]===t[0]?.toUpperCase()?"capital":"lower"
-    }));
+/* ---------- Translation helpers ---------- */
+function tokenize(t){
+return t.replace(/([?.!,])/g," $1 ")
+.trim().split(/\s+/).map(w=>({
+raw:w,lower:w.toLowerCase(),
+punct:/^[?.!,]$/.test(w),
+case:w===w.toUpperCase()?"upper":w[0]===w[0]?.toUpperCase()?"capital":"lower"
+}));
 }
-
-function detokenize(t){ return t.replace(/\s+([?.!,])/g,"$1"); }
-
+function detokenize(t){return t.replace(/\s+([?.!,])/g,"$1")}
 function applyCase(w,c){
-  if(c==="upper") return w.toUpperCase();
-  if(c==="capital") return w[0].toUpperCase()+w.slice(1);
-  return w;
+if(c==="upper")return w.toUpperCase();
+if(c==="capital")return w[0].toUpperCase()+w.slice(1);
+return w;
 }
-
-function detectLanguage(words){
-  let j=0,e=0;
-  words.forEach(w=>{ if(jamToEng[w])j++; if(engToJam[w])e++; });
-  return j>=e?"jam":"eng";
+function detectLanguage(ws){
+let j=0,e=0;
+ws.forEach(w=>{if(jamToEng[w])j++;if(engToJam[w])e++});
+return j>=e?"jam":"eng";
 }
 
 function translateWithPhrases(tokens,dict){
-  const out=[], words=tokens.map(t=>t.lower);
-  const keys=Object.keys(dict);
-  const max=Math.max(...keys.map(k=>k.split(" ").length));
-  let i=0;
-
-  while(i<tokens.length){
-    if(tokens[i].punct){ out.push(tokens[i].raw); i++; continue; }
-    let hit=false;
-
-    for(let s=Math.min(max,tokens.length-i);s>0;s--){
-      const chunk=words.slice(i,i+s).join(" ");
-      if(dict[chunk]){
-        let v=dict[chunk];
-        if(Array.isArray(v)){
-          v=PRIORITY[chunk]?.find(x=>v.includes(x))||v[0];
-        }
-        out.push(applyCase(v,tokens[i].case));
-        i+=s; hit=true; break;
-      }
-    }
-    if(!hit){ out.push(applyCase(words[i],tokens[i].case)); i++; }
-  }
-  return detokenize(out.join(" "));
+const out=[],words=tokens.map(t=>t.lower);
+const keys=Object.keys(dict);
+const max=Math.max(...keys.map(k=>k.split(" ").length));
+let i=0;
+while(i<tokens.length){
+if(tokens[i].punct){out.push(tokens[i].raw);i++;continue}
+let m=false;
+for(let s=Math.min(max,tokens.length-i);s>0;s--){
+const c=words.slice(i,i+s).join(" ");
+if(dict[c]){
+let v=dict[c];
+if(Array.isArray(v)){
+v=PRIORITY[c]?.find(x=>v.includes(x))||v[0];
+}
+out.push(applyCase(v,tokens[i].case));
+i+=s;m=true;break;
+}
+}
+if(!m){out.push(applyCase(words[i],tokens[i].case));i++}
+}
+return detokenize(out.join(" "));
 }
 
-/* ---------- UI ---------- */
+/* ---------- State ---------- */
 let source="auto", target="eng";
 const input=document.getElementById("input");
 const result=document.getElementById("result");
 const copyBtn=document.getElementById("copyBtn");
+const copyIcon=document.getElementById("copyIcon");
+const copyText=document.getElementById("copyText");
 
+/* ---------- Tabs ---------- */
 function setupTabs(id,set){
-  const c=document.getElementById(id);
-  const tabs=c.querySelectorAll(".lang-tab");
-  const u=c.querySelector(".underline");
-  function upd(t){ u.style.width=t.offsetWidth+"px"; u.style.left=t.offsetLeft+"px"; }
-  tabs.forEach(t=>{
-    t.onclick=()=>{
-      tabs.forEach(x=>x.classList.remove("active"));
-      t.classList.add("active"); set(t.dataset.lang); upd(t); translate();
-    };
-  });
-  upd(c.querySelector(".active"));
+const c=document.getElementById(id);
+const tabs=[...c.querySelectorAll(".lang-tab")];
+const u=c.querySelector(".underline");
+function move(t){u.style.width=t.offsetWidth+"px";u.style.left=t.offsetLeft+"px"}
+tabs.forEach(t=>{
+t.onclick=()=>{
+tabs.forEach(x=>x.classList.remove("active"));
+t.classList.add("active");set(t.dataset.lang);
+enforceNoDuplicate();move(t);translate();
+};
+});
+move(c.querySelector(".active"));
 }
 
 setupTabs("sourceTabs",l=>source=l);
 setupTabs("targetTabs",l=>target=l);
 
-function translate(){
-  const text=input.value.trim();
-  if(!text){ result.textContent=""; copyBtn.classList.remove("visible"); return; }
-
-  const tokens=tokenize(text);
-  const src=source==="auto"?detectLanguage(tokens.map(t=>t.lower)):source;
-  const dict=src==="jam"?jamToEng:engToJam;
-
-  result.textContent=translateWithPhrases(tokens,dict);
-  copyBtn.classList.add("visible");
+/* ---------- Duplicate prevention ---------- */
+function enforceNoDuplicate(){
+if(source!== "auto" && source===target){
+target=source==="eng"?"jam":"eng";
+document.querySelector(`#targetTabs .lang-tab[data-lang="${target}"]`).click();
+}
 }
 
+/* ---------- Swap ---------- */
+document.getElementById("swapBtn").onclick=()=>{
+if(source==="auto")return;
+[source,target]=[target,source];
+document.querySelector(`#sourceTabs .lang-tab[data-lang="${source}"]`).click();
+document.querySelector(`#targetTabs .lang-tab[data-lang="${target}"]`).click();
+};
+
+/* ---------- Translate ---------- */
+function translate(){
+const text=input.value.trim();
+if(!text){
+result.textContent="";
+copyBtn.classList.remove("visible");
+updateAutoLabel(null);
+return;
+}
+const tokens=tokenize(text);
+const detected=detectLanguage(tokens.map(t=>t.lower));
+updateAutoLabel(detected);
+const src=source==="auto"?detected:source;
+const dict=src==="jam"?jamToEng:engToJam;
+result.textContent=translateWithPhrases(tokens,dict);
+copyBtn.classList.add("visible");
+}
+
+/* ---------- Auto label ---------- */
+function updateAutoLabel(lang){
+const auto=document.querySelector('#sourceTabs .lang-tab[data-lang="auto"]');
+auto.textContent=!lang?"Auto":(lang==="eng"?"English – Auto":"Zamœlis – Auto");
+}
+
+/* ---------- Copy UX ---------- */
+copyBtn.onclick=()=>{
+navigator.clipboard.writeText(result.textContent);
+copyBtn.classList.add("copied");
+copyIcon.textContent="✔";
+copyText.textContent="Copied";
+setTimeout(()=>{
+copyBtn.classList.remove("copied");
+copyIcon.textContent="📋";
+copyText.textContent="Copy";
+},1300);
+};
+
 input.addEventListener("input",translate);
-copyBtn.onclick=()=>navigator.clipboard.writeText(result.textContent);
 </script>
 </body>
 </html>
