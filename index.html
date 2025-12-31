@@ -105,12 +105,13 @@ opacity:1;
 transform:translateX(-50%) scale(1.1);
 }
 
-/* Mobile placement */
+/* MOBILE: move swap BETWEEN panes */
 @media(max-width:700px){
 .swap-btn{
 position:static;
 transform:none;
-margin:6px auto 10px;
+margin:10px auto;
+order:2;
 }
 }
 
@@ -123,7 +124,6 @@ border-bottom:1px solid var(--border);
 margin-bottom:8px;
 }
 
-/* ONLY shift right language bar on desktop */
 @media(min-width:701px){
 #targetTabs{padding-left:42px;}
 }
@@ -134,6 +134,10 @@ cursor:pointer;
 color:var(--muted);
 transition:.25s;
 white-space:nowrap;
+}
+
+.lang-tab span{
+display:inline-block;
 }
 
 .lang-tab.active{color:var(--accent)}
@@ -220,22 +224,20 @@ flex-wrap:wrap;
 
 <button class="swap-btn" id="swapBtn" title="Swap languages">⇄</button>
 
-<!-- SOURCE -->
 <div class="pane">
 <div class="lang-tabs" id="sourceTabs">
-<div class="lang-tab active" data-lang="auto">Auto</div>
-<div class="lang-tab" data-lang="jam">Zamœlis</div>
-<div class="lang-tab" data-lang="eng">English</div>
+<div class="lang-tab active" data-lang="auto"><span>Auto</span></div>
+<div class="lang-tab" data-lang="jam"><span>Zamœlis</span></div>
+<div class="lang-tab" data-lang="eng"><span>English</span></div>
 <div class="underline"></div>
 </div>
 <textarea id="input" placeholder="Type text here..."></textarea>
 </div>
 
-<!-- TARGET -->
 <div class="pane">
 <div class="lang-tabs" id="targetTabs">
-<div class="lang-tab active" data-lang="eng">English</div>
-<div class="lang-tab" data-lang="jam">Zamœlis</div>
+<div class="lang-tab active" data-lang="eng"><span>English</span></div>
+<div class="lang-tab" data-lang="jam"><span>Zamœlis</span></div>
 <div class="underline"></div>
 </div>
 <div class="output-box">
@@ -284,48 +286,65 @@ localStorage.setItem("dark",d);
 
 /* ---------- Tabs ---------- */
 function refreshUnderline(container){
-const a=container.querySelector(".lang-tab.active");
+const a=container.querySelector(".lang-tab.active span");
 const u=container.querySelector(".underline");
 u.style.width=a.offsetWidth+"px";
 u.style.left=a.offsetLeft+"px";
 }
 
-function setupTabs(id,set,isSource){
-const c=document.getElementById(id);
-const tabs=[...c.querySelectorAll(".lang-tab")];
-tabs.forEach(t=>{
-t.onclick=()=>{
-tabs.forEach(x=>x.classList.remove("active"));
-t.classList.add("active");
-if(isSource && t.dataset.lang!=="auto"){
-document.querySelector('#sourceTabs .lang-tab[data-lang="auto"]').textContent="Auto";
+let source="auto", target="eng";
+
+function setLang(isSource, lang){
+if(isSource){
+source=lang;
+if(lang!=="auto" && lang===target){
+target=lang==="eng"?"jam":"eng";
+activateTab("targetTabs",target);
 }
-set(t.dataset.lang);
-refreshUnderline(c);
+}else{
+target=lang;
+if(source!=="auto" && lang===source){
+source=lang==="eng"?"jam":"eng";
+activateTab("sourceTabs",source);
+}
+}
 translate();
+}
+
+function activateTab(id,lang){
+const c=document.getElementById(id);
+c.querySelectorAll(".lang-tab").forEach(t=>{
+t.classList.toggle("active",t.dataset.lang===lang);
+});
+refreshUnderline(c);
+}
+
+document.querySelectorAll(".lang-tabs").forEach(c=>{
+c.querySelectorAll(".lang-tab").forEach(t=>{
+t.onclick=()=>{
+const isSource=c.id==="sourceTabs";
+setLang(isSource,t.dataset.lang);
+activateTab(c.id,t.dataset.lang);
 };
 });
 refreshUnderline(c);
 new ResizeObserver(()=>refreshUnderline(c)).observe(c);
-}
-
-let source="auto", target="eng";
-setupTabs("sourceTabs",l=>source=l,true);
-setupTabs("targetTabs",l=>target=l,false);
+});
 
 /* ---------- Swap ---------- */
 document.getElementById("swapBtn").onclick=()=>{
 if(source==="auto")return;
 [source,target]=[target,source];
-document.querySelector(`#sourceTabs .lang-tab[data-lang="${source}"]`).click();
-document.querySelector(`#targetTabs .lang-tab[data-lang="${target}"]`).click();
+activateTab("sourceTabs",source);
+activateTab("targetTabs",target);
+translate();
 };
 
 /* ---------- Translate ---------- */
 const input=document.getElementById("input");
 const result=document.getElementById("result");
 const copyBtn=document.getElementById("copyBtn");
-const autoTab=document.querySelector('#sourceTabs .lang-tab[data-lang="auto"]');
+const autoTab=document.querySelector('#sourceTabs [data-lang="auto"] span');
 
 function detectLanguage(words){
 let j=0,e=0;
