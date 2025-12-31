@@ -44,10 +44,8 @@ body {
   background: var(--card);
   border-radius: 20px;
   padding: 26px;
-  transition: background var(--transition);
 }
 
-/* ---------- Header ---------- */
 header {
   display: flex;
   justify-content: space-between;
@@ -55,13 +53,8 @@ header {
   margin-bottom: 20px;
 }
 
-h1 {
-  margin: 0;
-  font-size: 28px;
-  transition: color var(--transition);
-}
+h1 { margin: 0; font-size: 28px; }
 
-/* ---------- Theme Toggle ---------- */
 .toggle-wrap {
   display: flex;
   align-items: center;
@@ -93,7 +86,6 @@ h1 {
   transform: translateX(24px);
 }
 
-/* ---------- Layout ---------- */
 .panes {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -105,7 +97,6 @@ h1 {
   .panes { grid-template-columns: 1fr; }
 }
 
-/* ---------- Swap ---------- */
 .swap-btn {
   position: absolute;
   top: 42px;
@@ -116,7 +107,6 @@ h1 {
   font-size: 22px;
   cursor: pointer;
   color: var(--muted);
-  transition: color var(--transition);
 }
 
 @media (max-width: 700px) {
@@ -126,7 +116,6 @@ h1 {
   }
 }
 
-/* ---------- Language Tabs ---------- */
 .lang-tabs {
   position: relative;
   display: flex;
@@ -152,7 +141,6 @@ h1 {
   transition: var(--transition);
 }
 
-/* ---------- Panels ---------- */
 .pane {
   display: flex;
   flex-direction: column;
@@ -168,7 +156,6 @@ textarea {
   color: var(--text);
   padding: 14px;
   font-size: 16px;
-  transition: background var(--transition), border var(--transition);
 }
 
 .output-box {
@@ -177,35 +164,24 @@ textarea {
   border: 1px solid var(--border);
   padding: 14px;
   position: relative;
-  transition: background var(--transition), border var(--transition);
 }
 
-#result {
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-size: 17px;
-}
+#result { white-space: pre-wrap; }
 
-/* ---------- Copy ---------- */
 .copy-btn {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  border: none;
   background: none;
+  border: none;
   cursor: pointer;
   color: var(--muted);
   display: none;
 }
 
 .copy-btn.visible { display: block; }
+.copy-btn.copied { color: var(--accent); cursor: default; }
 
-.copy-btn.copied {
-  cursor: default;
-  color: var(--accent);
-}
-
-/* ---------- Footer ---------- */
 .footer {
   margin-top: 20px;
   font-size: 13px;
@@ -214,10 +190,7 @@ textarea {
   color: var(--muted);
 }
 
-.footer a {
-  color: var(--accent);
-  text-decoration: none;
-}
+.footer a { color: var(--accent); text-decoration: none; }
 </style>
 </head>
 
@@ -233,7 +206,6 @@ textarea {
 </header>
 
 <div class="panes">
-
 <button class="swap-btn" id="swapBtn">⇄</button>
 
 <div class="pane">
@@ -243,7 +215,7 @@ textarea {
 <div class="lang-tab" data-lang="eng"><span>English</span></div>
 <div class="underline"></div>
 </div>
-<textarea id="input" placeholder="Type text here..."></textarea>
+<textarea id="input"></textarea>
 </div>
 
 <div class="pane">
@@ -258,153 +230,133 @@ textarea {
 <button class="copy-btn" id="copyBtn">📋 Copy</button>
 </div>
 </div>
-
 </div>
 
 <div class="footer">
-<span>
-View the full dictionary at
-<a href="https://newhs.cc/dict" target="_blank">newhs.cc/dict</a>
-</span>
-<span>
-Created by
-<a href="https://github.com/nadfd" target="_blank">nadfd</a>
-</span>
+<span>View the full dictionary at <a href="https://newhs.cc/dict">newhs.cc/dict</a></span>
+<span>Created by <a href="https://github.com/nadfd">nadfd</a></span>
 </div>
 
 </div>
 </div>
 
 <script src="https://newhs.cc/words.js"></script>
-
 <script>
-/* ---------- Dictionary ---------- */
 const engToJam={}, jamToEng={};
-for(const [jam,raw] of dictionary){
-const parts=raw.split(",");
-const clean=[];
-for(let p of parts){
-p=p.replace(/\(.*?\)/g,"").trim().toLowerCase();
-if(!p)continue;
-clean.push(p);
-if(!engToJam[p])engToJam[p]=[];
-if(!engToJam[p].includes(jam))engToJam[p].push(jam);
-}
-jamToEng[jam]=clean;
+for(const [j,e] of dictionary){
+  const parts=e.split(",").map(p=>p.replace(/\(.*?\)/g,"").trim().toLowerCase()).filter(Boolean);
+  jamToEng[j]=parts;
+  parts.forEach(p=>{
+    engToJam[p]??=[];
+    if(!engToJam[p].includes(j)) engToJam[p].push(j);
+  });
 }
 
-/* ---------- Theme ---------- */
 const themeSwitch=document.getElementById("themeSwitch");
-document.documentElement.dataset.theme=
-localStorage.getItem("dark")==="false"?"light":"dark";
+document.documentElement.dataset.theme=localStorage.getItem("dark")==="false"?"light":"dark";
 themeSwitch.onclick=()=>{
-const d=document.documentElement.dataset.theme!=="dark";
-document.documentElement.dataset.theme=d?"dark":"light";
-localStorage.setItem("dark",d);
+  const d=document.documentElement.dataset.theme!=="dark";
+  document.documentElement.dataset.theme=d?"dark":"light";
+  localStorage.setItem("dark",d);
 };
-
-/* ---------- Tabs ---------- */
-function refreshUnderline(c){
-const a=c.querySelector(".lang-tab.active span");
-const u=c.querySelector(".underline");
-u.style.width=a.offsetWidth+"px";
-u.style.left=a.offsetLeft+"px";
-}
 
 let source="auto", target="eng";
 
+function refreshUnderline(c){
+  const a=c.querySelector(".lang-tab.active span");
+  const u=c.querySelector(".underline");
+  if(!a) return;
+  u.style.width=a.offsetWidth+"px";
+  u.style.left=a.offsetLeft+"px";
+}
+
 function activate(id,lang){
-const c=document.getElementById(id);
-c.querySelectorAll(".lang-tab").forEach(t=>{
-t.classList.toggle("active",t.dataset.lang===lang);
-});
-refreshUnderline(c);
+  const c=document.getElementById(id);
+  c.querySelectorAll(".lang-tab").forEach(t=>{
+    t.classList.toggle("active",t.dataset.lang===lang);
+  });
+  refreshUnderline(c);
 }
 
 function setLang(isSource,lang){
-if(isSource){
-source=lang;
-if(source!=="auto" && source===target){
-target=source==="eng"?"jam":"eng";
-activate("targetTabs",target);
-}
-}else{
-target=lang;
-if(source!=="auto" && source===target){
-source=target==="eng"?"jam":"eng";
-activate("sourceTabs",source);
-}
-}
-translate();
+  if(isSource){
+    source=lang;
+    activate("sourceTabs",lang);   // ✅ FIX
+    if(source!=="auto" && source===target){
+      target=source==="eng"?"jam":"eng";
+      activate("targetTabs",target);
+    }
+  } else {
+    target=lang;
+    activate("targetTabs",lang);   // ✅ FIX
+    if(source!=="auto" && source===target){
+      source=target==="eng"?"jam":"eng";
+      activate("sourceTabs",source);
+    }
+  }
+  translate();
 }
 
 document.querySelectorAll(".lang-tabs").forEach(c=>{
-c.querySelectorAll(".lang-tab").forEach(t=>{
-t.onclick=()=>setLang(c.id==="sourceTabs",t.dataset.lang);
-});
-refreshUnderline(c);
-new ResizeObserver(()=>refreshUnderline(c)).observe(c);
+  c.querySelectorAll(".lang-tab").forEach(t=>{
+    t.onclick=()=>setLang(c.id==="sourceTabs",t.dataset.lang);
+  });
+  refreshUnderline(c);
+  new ResizeObserver(()=>refreshUnderline(c)).observe(c);
 });
 
-/* ---------- Swap ---------- */
 document.getElementById("swapBtn").onclick=()=>{
-if(source==="auto")return;
-[source,target]=[target,source];
-activate("sourceTabs",source);
-activate("targetTabs",target);
-translate();
+  if(source==="auto") return;
+  [source,target]=[target,source];
+  activate("sourceTabs",source);
+  activate("targetTabs",target);
+  translate();
 };
 
-/* ---------- Translate ---------- */
 const input=document.getElementById("input");
 const result=document.getElementById("result");
 const copyBtn=document.getElementById("copyBtn");
 const autoSpan=document.querySelector('[data-lang="auto"] span');
 
-function detect(words){
-let j=0,e=0;
-words.forEach(w=>{if(jamToEng[w])j++;if(engToJam[w])e++;});
-return j>=e?"jam":"eng";
+function detect(w){
+  let j=0,e=0;
+  w.forEach(x=>{if(jamToEng[x])j++;if(engToJam[x])e++;});
+  return j>=e?"jam":"eng";
 }
 
 function translate(){
-const txt=input.value.trim();
-if(!txt){
-result.textContent="";
-copyBtn.classList.remove("visible");
-autoSpan.textContent="Auto";
-refreshUnderline(document.getElementById("sourceTabs"));
-return;
-}
+  const txt=input.value.trim();
+  if(!txt){
+    result.textContent="";
+    copyBtn.classList.remove("visible");
+    autoSpan.textContent="Auto";
+    refreshUnderline(document.getElementById("sourceTabs"));
+    return;
+  }
 
-const words=txt.toLowerCase().split(/\s+/);
-const detected=detect(words);
+  const words=txt.toLowerCase().split(/\s+/);
+  const d=detect(words);
 
-if(source==="auto"){
-autoSpan.textContent=(detected==="eng"?"English":"Zamœlis")+" – Auto";
-refreshUnderline(document.getElementById("sourceTabs"));
-}
+  if(source==="auto"){
+    autoSpan.textContent=(d==="eng"?"English":"Zamœlis")+" – Auto";
+    refreshUnderline(document.getElementById("sourceTabs"));
+  }
 
-const dict =
-(source==="jam" || (source==="auto" && detected==="jam"))
-? jamToEng
-: engToJam;
-
-result.textContent=words.map(w=>dict[w]?.[0]||w).join(" ");
-copyBtn.classList.add("visible");
+  const dict=(source==="jam"||(source==="auto"&&d==="jam"))?jamToEng:engToJam;
+  result.textContent=words.map(w=>dict[w]?.[0]||w).join(" ");
+  copyBtn.classList.add("visible");
 }
 
 input.addEventListener("input",translate);
 
-/* ---------- Copy ---------- */
 copyBtn.onclick=()=>{
-navigator.clipboard.writeText(result.textContent);
-copyBtn.textContent="✔ Copied";
-copyBtn.classList.add("copied");
-setTimeout(()=>{
-copyBtn.textContent="📋 Copy";
-copyBtn.classList.remove("copied");
-},1200);
+  navigator.clipboard.writeText(result.textContent);
+  copyBtn.textContent="✔ Copied";
+  copyBtn.classList.add("copied");
+  setTimeout(()=>{
+    copyBtn.textContent="📋 Copy";
+    copyBtn.classList.remove("copied");
+  },1200);
 };
 </script>
 </body>
