@@ -70,10 +70,46 @@ transition:.3s;
 [data-theme="dark"] .switch::after{transform:translateX(24px)}
 
 /* ---------- Layout ---------- */
-.panes{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-@media(max-width:700px){.panes{grid-template-columns:1fr}}
+.main-grid{
+display:grid;
+grid-template-columns:1fr auto 1fr;
+gap:12px;
+align-items:start;
+}
+
+@media(max-width:700px){
+.main-grid{
+grid-template-columns:1fr;
+}
+}
 
 .pane{display:flex;flex-direction:column}
+
+/* ---------- Swap ---------- */
+.swap-wrap{
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.swap-btn{
+border:none;
+background:var(--input);
+border:1px solid var(--border);
+border-radius:12px;
+padding:8px 14px;
+font-size:20px;
+cursor:pointer;
+transition:.25s;
+}
+.swap-btn:hover{color:var(--accent)}
+
+@media(max-width:700px){
+.swap-wrap{
+order:2;
+margin:6px 0;
+}
+}
 
 /* ---------- Tabs ---------- */
 .lang-tabs{
@@ -89,6 +125,7 @@ padding:8px 0;
 cursor:pointer;
 color:var(--muted);
 transition:color .25s;
+white-space:nowrap;
 }
 
 .lang-tab.active{color:var(--accent)}
@@ -100,19 +137,6 @@ height:2px;
 background:var(--accent);
 transition:left .3s,width .3s;
 }
-
-/* ---------- Swap ---------- */
-.swap-btn{
-align-self:center;
-margin:8px 0 16px;
-border:none;
-background:none;
-font-size:20px;
-cursor:pointer;
-color:var(--muted);
-transition:.2s;
-}
-.swap-btn:hover{color:var(--accent)}
 
 /* ---------- Input / Output ---------- */
 textarea{
@@ -158,17 +182,8 @@ pointer-events:none;
 transition:.25s;
 }
 
-.copy-btn.visible{
-opacity:1;
-pointer-events:auto;
-}
-
-.copy-btn.copied{
-opacity:1;
-pointer-events:none;
-color:var(--accent);
-border-color:var(--accent);
-}
+.copy-btn.visible{opacity:1;pointer-events:auto}
+.copy-btn.copied{pointer-events:none;color:var(--accent);border-color:var(--accent)}
 
 /* ---------- Footer ---------- */
 .footer{
@@ -194,7 +209,7 @@ flex-wrap:wrap;
 </div>
 </header>
 
-<div class="panes">
+<div class="main-grid">
 
 <!-- SOURCE -->
 <div class="pane">
@@ -207,6 +222,11 @@ flex-wrap:wrap;
 <textarea id="input" placeholder="Type text here..."></textarea>
 </div>
 
+<!-- SWAP -->
+<div class="swap-wrap">
+<button class="swap-btn" id="swapBtn">⇄</button>
+</div>
+
 <!-- TARGET -->
 <div class="pane">
 <div class="lang-tabs" id="targetTabs">
@@ -214,7 +234,6 @@ flex-wrap:wrap;
 <div class="lang-tab" data-lang="jam">Zamœlis</div>
 <div class="underline"></div>
 </div>
-<button class="swap-btn" id="swapBtn">⇄</button>
 <div class="output-box">
 <div id="result"></div>
 <button class="copy-btn" id="copyBtn">
@@ -237,9 +256,8 @@ flex-wrap:wrap;
 <script src="https://newhs.cc/words.js"></script>
 
 <script>
-/* ---------- Dictionary build (unchanged logic) ---------- */
-const engToJam={}, jamToEng={}, PRIORITY={yes:["za","lah","ti"]};
-
+/* ---------- Dictionary ---------- */
+const engToJam={}, jamToEng={};
 for(const [jam,engRaw] of dictionary){
 const parts=engRaw.split(",");
 const meanings=[];
@@ -250,10 +268,10 @@ meanings.push(p);
 if(!engToJam[p])engToJam[p]=[];
 if(!engToJam[p].includes(jam))engToJam[p].push(jam);
 }
-jamToEng[jam]=[...new Set(meanings)];
+jamToEng[jam]=meanings;
 }
 
-/* ---------- Dark mode ---------- */
+/* ---------- Theme ---------- */
 const themeSwitch=document.getElementById("themeSwitch");
 document.documentElement.dataset.theme=
 localStorage.getItem("dark")==="false"?"light":"dark";
@@ -263,85 +281,35 @@ document.documentElement.dataset.theme=d?"dark":"light";
 localStorage.setItem("dark",d);
 };
 
-/* ---------- Translation helpers ---------- */
-function tokenize(t){
-return t.replace(/([?.!,])/g," $1 ")
-.trim().split(/\s+/).map(w=>({
-raw:w,lower:w.toLowerCase(),
-punct:/^[?.!,]$/.test(w),
-case:w===w.toUpperCase()?"upper":w[0]===w[0]?.toUpperCase()?"capital":"lower"
-}));
-}
-function detokenize(t){return t.replace(/\s+([?.!,])/g,"$1")}
-function applyCase(w,c){
-if(c==="upper")return w.toUpperCase();
-if(c==="capital")return w[0].toUpperCase()+w.slice(1);
-return w;
-}
-function detectLanguage(ws){
-let j=0,e=0;
-ws.forEach(w=>{if(jamToEng[w])j++;if(engToJam[w])e++});
-return j>=e?"jam":"eng";
-}
-
-function translateWithPhrases(tokens,dict){
-const out=[],words=tokens.map(t=>t.lower);
-const keys=Object.keys(dict);
-const max=Math.max(...keys.map(k=>k.split(" ").length));
-let i=0;
-while(i<tokens.length){
-if(tokens[i].punct){out.push(tokens[i].raw);i++;continue}
-let m=false;
-for(let s=Math.min(max,tokens.length-i);s>0;s--){
-const c=words.slice(i,i+s).join(" ");
-if(dict[c]){
-let v=dict[c];
-if(Array.isArray(v)){
-v=PRIORITY[c]?.find(x=>v.includes(x))||v[0];
-}
-out.push(applyCase(v,tokens[i].case));
-i+=s;m=true;break;
-}
-}
-if(!m){out.push(applyCase(words[i],tokens[i].case));i++}
-}
-return detokenize(out.join(" "));
-}
-
-/* ---------- State ---------- */
-let source="auto", target="eng";
-const input=document.getElementById("input");
-const result=document.getElementById("result");
-const copyBtn=document.getElementById("copyBtn");
-const copyIcon=document.getElementById("copyIcon");
-const copyText=document.getElementById("copyText");
-
 /* ---------- Tabs ---------- */
 function setupTabs(id,set){
 const c=document.getElementById(id);
 const tabs=[...c.querySelectorAll(".lang-tab")];
 const u=c.querySelector(".underline");
-function move(t){u.style.width=t.offsetWidth+"px";u.style.left=t.offsetLeft+"px"}
+
+function move(){
+const a=c.querySelector(".lang-tab.active");
+u.style.width=a.offsetWidth+"px";
+u.style.left=a.offsetLeft+"px";
+}
+
 tabs.forEach(t=>{
 t.onclick=()=>{
 tabs.forEach(x=>x.classList.remove("active"));
-t.classList.add("active");set(t.dataset.lang);
-enforceNoDuplicate();move(t);translate();
+t.classList.add("active");
+set(t.dataset.lang);
+move();
+translate();
 };
 });
-move(c.querySelector(".active"));
+
+new ResizeObserver(move).observe(c);
+move();
 }
 
+let source="auto", target="eng";
 setupTabs("sourceTabs",l=>source=l);
 setupTabs("targetTabs",l=>target=l);
-
-/* ---------- Duplicate prevention ---------- */
-function enforceNoDuplicate(){
-if(source!== "auto" && source===target){
-target=source==="eng"?"jam":"eng";
-document.querySelector(`#targetTabs .lang-tab[data-lang="${target}"]`).click();
-}
-}
 
 /* ---------- Swap ---------- */
 document.getElementById("swapBtn").onclick=()=>{
@@ -352,43 +320,50 @@ document.querySelector(`#targetTabs .lang-tab[data-lang="${target}"]`).click();
 };
 
 /* ---------- Translate ---------- */
+const input=document.getElementById("input");
+const result=document.getElementById("result");
+const copyBtn=document.getElementById("copyBtn");
+const autoTab=document.querySelector('#sourceTabs .lang-tab[data-lang="auto"]');
+
+function detectLanguage(words){
+let j=0,e=0;
+words.forEach(w=>{if(jamToEng[w])j++;if(engToJam[w])e++});
+return j>=e?"jam":"eng";
+}
+
 function translate(){
 const text=input.value.trim();
 if(!text){
 result.textContent="";
 copyBtn.classList.remove("visible");
-updateAutoLabel(null);
+autoTab.textContent="Auto";
 return;
 }
-const tokens=tokenize(text);
-const detected=detectLanguage(tokens.map(t=>t.lower));
-updateAutoLabel(detected);
-const src=source==="auto"?detected:source;
-const dict=src==="jam"?jamToEng:engToJam;
-result.textContent=translateWithPhrases(tokens,dict);
+const words=text.toLowerCase().split(/\s+/);
+const detected=detectLanguage(words);
+
+if(source==="auto"){
+autoTab.textContent=(detected==="eng"?"English":"Zamœlis")+" – Auto";
+document.querySelector("#sourceTabs .underline").style.width=autoTab.offsetWidth+"px";
+}
+
+const dict=(source==="jam"||(source==="auto"&&detected==="jam"))?jamToEng:engToJam;
+result.textContent=words.map(w=>dict[w]?.[0]||w).join(" ");
 copyBtn.classList.add("visible");
 }
 
-/* ---------- Auto label ---------- */
-function updateAutoLabel(lang){
-const auto=document.querySelector('#sourceTabs .lang-tab[data-lang="auto"]');
-auto.textContent=!lang?"Auto":(lang==="eng"?"English – Auto":"Zamœlis – Auto");
-}
+input.addEventListener("input",translate);
 
-/* ---------- Copy UX ---------- */
+/* ---------- Copy ---------- */
 copyBtn.onclick=()=>{
 navigator.clipboard.writeText(result.textContent);
 copyBtn.classList.add("copied");
-copyIcon.textContent="✔";
-copyText.textContent="Copied";
+copyBtn.innerHTML="✔ Copied";
 setTimeout(()=>{
 copyBtn.classList.remove("copied");
-copyIcon.textContent="📋";
-copyText.textContent="Copy";
+copyBtn.innerHTML="<span id='copyIcon'>📋</span><span id='copyText'>Copy</span>";
 },1300);
 };
-
-input.addEventListener("input",translate);
 </script>
 </body>
 </html>
