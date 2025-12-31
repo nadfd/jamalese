@@ -84,36 +84,48 @@ position:relative;
 
 .pane{display:flex;flex-direction:column}
 
-/* ---------- Swap ---------- */
+/* ---------- Swap button ---------- */
 .swap-btn{
 position:absolute;
-top:-18px;
+top:0;
 left:50%;
 transform:translateX(-50%);
-border:1px solid var(--border);
-background:var(--input);
-border-radius:12px;
-padding:6px 14px;
 font-size:20px;
 cursor:pointer;
+background:none;
+border:none;
+color:var(--muted);
+opacity:.7;
+transition:.2s;
 z-index:5;
 }
 
+.swap-btn:hover{
+opacity:1;
+transform:translateX(-50%) scale(1.1);
+}
+
+/* Mobile placement */
 @media(max-width:700px){
 .swap-btn{
 position:static;
 transform:none;
-margin:10px auto;
+margin:6px auto 10px;
 }
 }
 
-/* ---------- Tabs ---------- */
+/* ---------- Language tabs ---------- */
 .lang-tabs{
 position:relative;
 display:flex;
 gap:20px;
 border-bottom:1px solid var(--border);
 margin-bottom:8px;
+}
+
+/* ONLY shift right language bar on desktop */
+@media(min-width:701px){
+#targetTabs{padding-left:42px;}
 }
 
 .lang-tab{
@@ -206,7 +218,7 @@ flex-wrap:wrap;
 
 <div class="panes">
 
-<button class="swap-btn" id="swapBtn">⇄</button>
+<button class="swap-btn" id="swapBtn" title="Swap languages">⇄</button>
 
 <!-- SOURCE -->
 <div class="pane">
