@@ -6,206 +6,218 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{box-sizing:border-box}
+* { box-sizing: border-box; }
 
-:root{
---bg:#f4f6fb;
---card:#fff;
---text:#111;
---muted:#555;
---accent:#4b5cff;
---border:#d6d9ee;
---input:#fff;
+:root {
+  --bg: #0b0e1a;
+  --card: #151a33;
+  --text: #f1f3ff;
+  --muted: #aab;
+  --accent: #7c8cff;
+  --border: #2b2f55;
+  --transition: 0.35s ease;
 }
 
-[data-theme="dark"]{
---bg:#070914;
---card:#151a33;
---text:#f1f3ff;
---muted:#aab;
---accent:#7c8cff;
---border:#2b2f55;
---input:#0e1228;
+[data-theme="light"] {
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #111;
+  --muted: #666;
+  --border: #ddd;
 }
 
-body{
-margin:0;
-font-family:system-ui,sans-serif;
-background:var(--bg);
-color:var(--text);
-transition:.4s;
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background var(--transition), color var(--transition);
 }
 
-.container{max-width:1100px;margin:60px auto;padding:20px}
-.card{
-background:var(--card);
-border-radius:20px;
-padding:28px;
-box-shadow:0 30px 80px rgba(0,0,0,.35);
-transition:.4s;
-position:relative;
+.container {
+  max-width: 1100px;
+  margin: 50px auto;
+  padding: 20px;
 }
 
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
+.card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 26px;
+  transition: background var(--transition);
 }
 
-h1{margin:0;font-size:28px}
-
-/* ---------- Dark toggle ---------- */
-.toggle-wrap{display:flex;align-items:center;gap:8px;font-size:18px}
-.switch{
-width:52px;height:28px;border-radius:999px;
-background:#999;position:relative;cursor:pointer;
-transition:.3s;
-}
-.switch::after{
-content:"";width:22px;height:22px;border-radius:50%;
-background:white;position:absolute;top:3px;left:3px;
-transition:.3s;
-}
-[data-theme="dark"] .switch{background:var(--accent)}
-[data-theme="dark"] .switch::after{transform:translateX(24px)}
-
-/* ---------- Panes ---------- */
-.panes{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px;
-position:relative;
+/* ---------- Header ---------- */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-@media(max-width:700px){
-.panes{grid-template-columns:1fr}
+h1 {
+  margin: 0;
+  font-size: 28px;
+  transition: color var(--transition);
 }
 
-.pane{display:flex;flex-direction:column}
-
-/* ---------- Swap button ---------- */
-.swap-btn{
-position:absolute;
-top:0;
-left:50%;
-transform:translateX(-50%);
-font-size:20px;
-cursor:pointer;
-background:none;
-border:none;
-color:var(--muted);
-opacity:.7;
-transition:.2s;
-z-index:5;
+/* ---------- Theme Toggle ---------- */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.swap-btn:hover{
-opacity:1;
-transform:translateX(-50%) scale(1.1);
+.switch {
+  width: 50px;
+  height: 26px;
+  background: #555;
+  border-radius: 20px;
+  position: relative;
+  cursor: pointer;
 }
 
-/* MOBILE: move swap BETWEEN panes */
-@media(max-width:700px){
-.swap-btn{
-position:static;
-transform:none;
-margin:10px auto;
-order:2;
-}
-}
-
-/* ---------- Language tabs ---------- */
-.lang-tabs{
-position:relative;
-display:flex;
-gap:20px;
-border-bottom:1px solid var(--border);
-margin-bottom:8px;
+.switch::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: var(--transition);
 }
 
-@media(min-width:701px){
-#targetTabs{padding-left:42px;}
+[data-theme="light"] .switch::after {
+  transform: translateX(24px);
 }
 
-.lang-tab{
-padding:8px 0;
-cursor:pointer;
-color:var(--muted);
-transition:.25s;
-white-space:nowrap;
+/* ---------- Layout ---------- */
+.panes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  position: relative;
 }
 
-.lang-tab span{
-display:inline-block;
+@media (max-width: 700px) {
+  .panes { grid-template-columns: 1fr; }
 }
 
-.lang-tab.active{color:var(--accent)}
-
-.underline{
-position:absolute;
-bottom:-1px;
-height:2px;
-background:var(--accent);
-transition:left .3s,width .3s;
+/* ---------- Swap ---------- */
+.swap-btn {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color var(--transition);
 }
 
-/* ---------- Input / Output ---------- */
-textarea{
-height:260px;
-resize:none;
-padding:14px;
-font-size:16px;
-border-radius:14px;
-border:1px solid var(--border);
-background:var(--input);
-color:var(--text);
-transition:.4s;
+@media (max-width: 700px) {
+  .swap-btn {
+    top: auto;
+    bottom: calc(50% + 10px);
+  }
 }
 
-.output-box{
-position:relative;
-height:260px;
-padding:14px 14px 54px;
-border-radius:14px;
-background:rgba(0,0,0,.04);
-overflow-y:auto;
-font-size:18px;
-transition:.4s;
+/* ---------- Language Tabs ---------- */
+.lang-tabs {
+  position: relative;
+  display: flex;
+  gap: 18px;
+  margin-bottom: 8px;
 }
-[data-theme="dark"] .output-box{background:rgba(255,255,255,.06)}
+
+.lang-tab {
+  cursor: pointer;
+  color: var(--muted);
+  padding-bottom: 6px;
+}
+
+.lang-tab.active {
+  color: var(--text);
+}
+
+.underline {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: var(--transition);
+}
+
+/* ---------- Panels ---------- */
+.pane {
+  display: flex;
+  flex-direction: column;
+  height: 260px;
+}
+
+textarea {
+  flex: 1;
+  resize: none;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  padding: 14px;
+  font-size: 16px;
+  transition: background var(--transition), border var(--transition);
+}
+
+.output-box {
+  flex: 1;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 14px;
+  position: relative;
+  transition: background var(--transition), border var(--transition);
+}
+
+#result {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 17px;
+}
 
 /* ---------- Copy ---------- */
-.copy-btn{
-position:absolute;
-bottom:10px;
-left:10px;
-display:flex;
-align-items:center;
-gap:6px;
-padding:6px 10px;
-border-radius:10px;
-border:1px solid var(--border);
-background:var(--input);
-cursor:pointer;
-font-size:14px;
-opacity:0;
-pointer-events:none;
-transition:.25s;
+.copy-btn {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--muted);
+  display: none;
 }
-.copy-btn.visible{opacity:1;pointer-events:auto}
-.copy-btn.copied{pointer-events:none;color:var(--accent);border-color:var(--accent)}
+
+.copy-btn.visible { display: block; }
+
+.copy-btn.copied {
+  cursor: default;
+  color: var(--accent);
+}
 
 /* ---------- Footer ---------- */
-.footer{
-margin-top:22px;
-font-size:13px;
-color:var(--muted);
-display:flex;
-justify-content:space-between;
-flex-wrap:wrap;
+.footer {
+  margin-top: 20px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
 }
-.footer a{color:var(--accent);text-decoration:none}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
 </style>
 </head>
 
@@ -222,7 +234,7 @@ flex-wrap:wrap;
 
 <div class="panes">
 
-<button class="swap-btn" id="swapBtn" title="Swap languages">⇄</button>
+<button class="swap-btn" id="swapBtn">⇄</button>
 
 <div class="pane">
 <div class="lang-tabs" id="sourceTabs">
@@ -240,6 +252,7 @@ flex-wrap:wrap;
 <div class="lang-tab" data-lang="jam"><span>Zamœlis</span></div>
 <div class="underline"></div>
 </div>
+
 <div class="output-box">
 <div id="result"></div>
 <button class="copy-btn" id="copyBtn">📋 Copy</button>
@@ -249,8 +262,14 @@ flex-wrap:wrap;
 </div>
 
 <div class="footer">
-<span>View the full dictionary at <a href="https://newhs.cc/dict">newhs.cc/dict</a></span>
-<span>Created by <a href="https://github.com/nadfd">nadfd</a></span>
+<span>
+View the full dictionary at
+<a href="https://newhs.cc/dict" target="_blank">newhs.cc/dict</a>
+</span>
+<span>
+Created by
+<a href="https://github.com/nadfd" target="_blank">nadfd</a>
+</span>
 </div>
 
 </div>
@@ -261,17 +280,17 @@ flex-wrap:wrap;
 <script>
 /* ---------- Dictionary ---------- */
 const engToJam={}, jamToEng={};
-for(const [jam,engRaw] of dictionary){
-const parts=engRaw.split(",");
-const meanings=[];
+for(const [jam,raw] of dictionary){
+const parts=raw.split(",");
+const clean=[];
 for(let p of parts){
-p=p.replace(/\s*\(.*?\)\s*/g,"").trim().toLowerCase();
+p=p.replace(/\(.*?\)/g,"").trim().toLowerCase();
 if(!p)continue;
-meanings.push(p);
+clean.push(p);
 if(!engToJam[p])engToJam[p]=[];
 if(!engToJam[p].includes(jam))engToJam[p].push(jam);
 }
-jamToEng[jam]=meanings;
+jamToEng[jam]=clean;
 }
 
 /* ---------- Theme ---------- */
@@ -285,33 +304,16 @@ localStorage.setItem("dark",d);
 };
 
 /* ---------- Tabs ---------- */
-function refreshUnderline(container){
-const a=container.querySelector(".lang-tab.active span");
-const u=container.querySelector(".underline");
+function refreshUnderline(c){
+const a=c.querySelector(".lang-tab.active span");
+const u=c.querySelector(".underline");
 u.style.width=a.offsetWidth+"px";
 u.style.left=a.offsetLeft+"px";
 }
 
 let source="auto", target="eng";
 
-function setLang(isSource, lang){
-if(isSource){
-source=lang;
-if(lang!=="auto" && lang===target){
-target=lang==="eng"?"jam":"eng";
-activateTab("targetTabs",target);
-}
-}else{
-target=lang;
-if(source!=="auto" && lang===source){
-source=lang==="eng"?"jam":"eng";
-activateTab("sourceTabs",source);
-}
-}
-translate();
-}
-
-function activateTab(id,lang){
+function activate(id,lang){
 const c=document.getElementById(id);
 c.querySelectorAll(".lang-tab").forEach(t=>{
 t.classList.toggle("active",t.dataset.lang===lang);
@@ -319,13 +321,26 @@ t.classList.toggle("active",t.dataset.lang===lang);
 refreshUnderline(c);
 }
 
+function setLang(isSource,lang){
+if(isSource){
+source=lang;
+if(source!=="auto" && source===target){
+target=source==="eng"?"jam":"eng";
+activate("targetTabs",target);
+}
+}else{
+target=lang;
+if(source!=="auto" && source===target){
+source=target==="eng"?"jam":"eng";
+activate("sourceTabs",source);
+}
+}
+translate();
+}
+
 document.querySelectorAll(".lang-tabs").forEach(c=>{
 c.querySelectorAll(".lang-tab").forEach(t=>{
-t.onclick=()=>{
-const isSource=c.id==="sourceTabs";
-setLang(isSource,t.dataset.lang);
-activateTab(c.id,t.dataset.lang);
-};
+t.onclick=()=>setLang(c.id==="sourceTabs",t.dataset.lang);
 });
 refreshUnderline(c);
 new ResizeObserver(()=>refreshUnderline(c)).observe(c);
@@ -335,8 +350,8 @@ new ResizeObserver(()=>refreshUnderline(c)).observe(c);
 document.getElementById("swapBtn").onclick=()=>{
 if(source==="auto")return;
 [source,target]=[target,source];
-activateTab("sourceTabs",source);
-activateTab("targetTabs",target);
+activate("sourceTabs",source);
+activate("targetTabs",target);
 translate();
 };
 
@@ -344,33 +359,37 @@ translate();
 const input=document.getElementById("input");
 const result=document.getElementById("result");
 const copyBtn=document.getElementById("copyBtn");
-const autoTab=document.querySelector('#sourceTabs [data-lang="auto"] span');
+const autoSpan=document.querySelector('[data-lang="auto"] span');
 
-function detectLanguage(words){
+function detect(words){
 let j=0,e=0;
-words.forEach(w=>{if(jamToEng[w])j++;if(engToJam[w])e++});
+words.forEach(w=>{if(jamToEng[w])j++;if(engToJam[w])e++;});
 return j>=e?"jam":"eng";
 }
 
 function translate(){
-const text=input.value.trim();
-if(!text){
+const txt=input.value.trim();
+if(!txt){
 result.textContent="";
 copyBtn.classList.remove("visible");
-autoTab.textContent="Auto";
+autoSpan.textContent="Auto";
 refreshUnderline(document.getElementById("sourceTabs"));
 return;
 }
 
-const words=text.toLowerCase().split(/\s+/);
-const detected=detectLanguage(words);
+const words=txt.toLowerCase().split(/\s+/);
+const detected=detect(words);
 
 if(source==="auto"){
-autoTab.textContent=(detected==="eng"?"English":"Zamœlis")+" – Auto";
+autoSpan.textContent=(detected==="eng"?"English":"Zamœlis")+" – Auto";
 refreshUnderline(document.getElementById("sourceTabs"));
 }
 
-const dict=(source==="jam"||(source==="auto"&&detected==="jam"))?jamToEng:engToJam;
+const dict =
+(source==="jam" || (source==="auto" && detected==="jam"))
+? jamToEng
+: engToJam;
+
 result.textContent=words.map(w=>dict[w]?.[0]||w).join(" ");
 copyBtn.classList.add("visible");
 }
@@ -380,11 +399,11 @@ input.addEventListener("input",translate);
 /* ---------- Copy ---------- */
 copyBtn.onclick=()=>{
 navigator.clipboard.writeText(result.textContent);
-copyBtn.classList.add("copied");
 copyBtn.textContent="✔ Copied";
+copyBtn.classList.add("copied");
 setTimeout(()=>{
-copyBtn.classList.remove("copied");
 copyBtn.textContent="📋 Copy";
+copyBtn.classList.remove("copied");
 },1200);
 };
 </script>
