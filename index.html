@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Jamalese Translator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="desktop.css" media="(min-width: 701px)">
+<link rel="stylesheet" href="mobile.css" media="(max-width: 700px)">
+</head>
+
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <header>
+      <h1>Jamalese Translator</h1>
+
+      <div class="toggle-wrap">
+        ☀️
+        <label class="switch">
+          <input type="checkbox" id="darkToggle" checked>
+          <span class="slider"></span>
+        </label>
+        🌙
+      </div>
+    </header>
+
+    <!-- LANGUAGE BARS -->
+    <div class="language-row">
+      <div class="lang-bar left">
+        <button class="lang auto active">Auto</button>
+        <button class="lang jam">Zamœlis</button>
+        <button class="lang en">English</button>
+      </div>
+
+      <button class="swap-btn" id="swapBtn" aria-label="Swap languages">
+        ⇄
+      </button>
+
+      <div class="lang-bar right">
+        <button class="lang en active">English</button>
+        <button class="lang jam">Zamœlis</button>
+      </div>
+    </div>
+
+    <!-- PANES -->
+    <div class="panes">
+      <div class="pane input-pane">
+        <textarea id="input" placeholder="Type text here..."></textarea>
+      </div>
+
+      <div class="pane output-pane">
+        <div class="output-box">
+          <div id="result"></div>
+        </div>
+
+        <button class="copy-btn" id="copyBtn">📋</button>
+      </div>
+    </div>
+
+    <footer>
+      <span>View the full dictionary at <a href="https://newhs.cc/dict" target="_blank">newhs.cc/dict</a></span>
+      <span>Created by <a href="https://github.com/nadfd" target="_blank">nadfd</a></span>
+    </footer>
+
+  </div>
+</div>
+
+<script src="https://newhs.cc/words.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
