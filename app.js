@@ -1,183 +1,148 @@
-/* =========================
-   DICTIONARY SETUP
-========================= */
+// --------------------
+// State
+// --------------------
+let sourceLang = "auto";
+let targetLang = "jamalese";
+let detectedLang = null;
 
-// dictionary is loaded from words.js
-const jamToEng = {};
-const engToJam = {};
+// --------------------
+// Elements
+// --------------------
+const inputEl = document.getElementById("input");
+const outputEl = document.getElementById("output");
 
-for (const [jam, engRaw] of dictionary) {
-  const meanings = engRaw
-    .split(",")
-    .map(p => p.replace(/\(.*?\)/g, "").trim().toLowerCase())
-    .filter(Boolean);
+const sourceBar = document.getElementById("source-lang");
+const targetBar = document.getElementById("target-lang");
+const swapBtn = document.getElementById("swap-btn");
 
-  jamToEng[jam] = [...new Set(meanings)];
+// --------------------
+// Helpers
+// --------------------
+function updateUnderline(bar) {
+  const active = bar.querySelector(".lang.active");
+  const underline = bar.querySelector(".underline");
 
-  meanings.forEach(m => {
-    if (!engToJam[m]) engToJam[m] = [];
-    if (!engToJam[m].includes(jam)) engToJam[m].push(jam);
-  });
+  if (!active) return;
+
+  const rect = active.getBoundingClientRect();
+  const parentRect = bar.querySelector(".langs").getBoundingClientRect();
+
+  underline.style.width = `${rect.width}px`;
+  underline.style.transform = `translateX(${rect.left - parentRect.left}px)`;
 }
 
-/* =========================
-   ELEMENTS
-========================= */
-
-const input = document.getElementById("input");
-const output = document.getElementById("result");
-
-const leftSelect = document.getElementById("leftLang");
-const rightSelect = document.getElementById("rightLang");
-
-const leftUnderline = document.getElementById("leftUnderline");
-const rightUnderline = document.getElementById("rightUnderline");
-
-/* =========================
-   UTILITIES
-========================= */
-
-function tokenize(text) {
-  return text.toLowerCase().trim().split(/\s+/);
+function setActive(bar, button) {
+  bar.querySelectorAll(".lang").forEach(b => b.classList.remove("active"));
+  button.classList.add("active");
+  updateUnderline(bar);
 }
 
-function detectLanguage(words) {
-  let jam = 0, eng = 0;
-  words.forEach(w => {
-    if (jamToEng[w]) jam++;
-    if (engToJam[w]) eng++;
-  });
-  return jam >= eng ? "jam" : "eng";
+function detectLanguage(text) {
+  if (!text.trim()) return null;
+  return /^[a-zA-Z]/.test(text) ? "english" : "jamalese";
 }
 
-function translateWithPhrases(words, dict) {
-  const result = [];
-  const keys = Object.keys(dict);
-  const maxLen = Math.max(1, ...keys.map(k => k.split(" ").length));
+// --------------------
+// Language Selection
+// --------------------
+function handleLangClick(e, isSource) {
+  const btn = e.target.closest(".lang");
+  if (!btn) return;
 
-  let i = 0;
-  while (i < words.length) {
-    let matched = false;
+  const lang = btn.dataset.lang;
 
-    for (let size = Math.min(maxLen, words.length - i); size > 0; size--) {
-      const chunk = words.slice(i, i + size).join(" ");
-      if (dict[chunk]) {
-        let val = dict[chunk];
-        if (Array.isArray(val)) val = val[0];
-        result.push(val);
-        i += size;
-        matched = true;
-        break;
-      }
-    }
-
-    if (!matched) {
-      result.push(words[i]);
-      i++;
-    }
-  }
-
-  return result.join(" ");
-}
-
-/* =========================
-   UNDERLINE HANDLING
-========================= */
-
-function updateUnderline(select, underline) {
-  const option = select.options[select.selectedIndex];
-  underline.style.width = option.offsetWidth + "px";
-  underline.style.left = option.offsetLeft + "px";
-}
-
-function updateUnderlines() {
-  updateUnderline(leftSelect, leftUnderline);
-  updateUnderline(rightSelect, rightUnderline);
-}
-
-/* =========================
-   AUTO LABEL HANDLING
-========================= */
-
-function updateAutoLabel(detected) {
-  const autoOption = [...leftSelect.options].find(o => o.value === "auto");
-  if (!autoOption) return;
-
-  if (!input.value.trim()) {
-    autoOption.textContent = "Auto";
+  if (isSource) {
+    sourceLang = lang;
+    setActive(sourceBar, btn);
   } else {
-    autoOption.textContent =
-      detected === "jam" ? "Zamœlis – Auto" : "English – Auto";
+    // Prevent duplicates unless allowed by auto-detect
+    if (lang === sourceLang && sourceLang !== "auto") return;
+
+    if (
+      sourceLang === "auto" &&
+      detectedLang &&
+      lang === detectedLang
+    ) {
+      // allowed
+    }
+
+    targetLang = lang;
+    setActive(targetBar, btn);
   }
+
+  translate();
 }
 
-/* =========================
-   TRANSLATION CORE
-========================= */
+// --------------------
+// Auto language label logic
+// --------------------
+function updateAutoLabel() {
+  const autoBtn = sourceBar.querySelector('[data-lang="auto"]');
 
-function translate() {
-  const text = input.value.trim();
-  if (!text) {
-    output.textContent = "";
-    updateAutoLabel(null);
-    updateUnderlines();
+  if (sourceLang !== "auto") {
+    autoBtn.textContent = "Auto";
     return;
   }
 
-  const words = tokenize(text);
-  let from = leftSelect.value;
-  let to = rightSelect.value;
-
-  if (from === "auto") {
-    const detected = detectLanguage(words);
-    updateAutoLabel(detected);
-
-    if (detected === "jam") {
-      output.textContent = translateWithPhrases(words, jamToEng);
-    } else {
-      output.textContent = translateWithPhrases(words, engToJam);
-    }
+  if (!detectedLang) {
+    autoBtn.textContent = "Auto";
   } else {
-    updateAutoLabel(null);
-
-    const dict =
-      from === "jam" && to === "eng" ? jamToEng :
-      from === "eng" && to === "jam" ? engToJam :
-      null;
-
-    output.textContent = dict
-      ? translateWithPhrases(words, dict)
-      : words.join(" ");
+    autoBtn.textContent = `${capitalize(detectedLang)} – Auto`;
   }
 
-  updateUnderlines();
+  updateUnderline(sourceBar);
 }
 
-/* =========================
-   LANGUAGE CONFLICT FIX
-========================= */
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
-function preventDuplicateSelection(changed, other) {
-  if (changed.value !== "auto" && changed.value === other.value) {
-    other.value = changed.value === "jam" ? "eng" : "jam";
+// --------------------
+// Translation (stub)
+// --------------------
+function translate() {
+  const text = inputEl.value;
+
+  if (!text.trim()) {
+    detectedLang = null;
+    outputEl.textContent = "";
+    updateAutoLabel();
+    return;
   }
+
+  if (sourceLang === "auto") {
+    detectedLang = detectLanguage(text);
+    updateAutoLabel();
+  }
+
+  // placeholder translation
+  outputEl.textContent = `[${sourceLang} → ${targetLang}] ${text}`;
 }
 
-/* =========================
-   EVENTS
-========================= */
+// --------------------
+// Events
+// --------------------
+sourceBar.addEventListener("click", e => handleLangClick(e, true));
+targetBar.addEventListener("click", e => handleLangClick(e, false));
 
-input.addEventListener("input", translate);
+swapBtn.addEventListener("click", () => {
+  if (sourceLang === "auto") return;
 
-leftSelect.addEventListener("change", () => {
-  preventDuplicateSelection(leftSelect, rightSelect);
+  [sourceLang, targetLang] = [targetLang, sourceLang];
+
+  const sBtn = sourceBar.querySelector(`[data-lang="${sourceLang}"]`);
+  const tBtn = targetBar.querySelector(`[data-lang="${targetLang}"]`);
+
+  if (sBtn) setActive(sourceBar, sBtn);
+  if (tBtn) setActive(targetBar, tBtn);
+
   translate();
 });
 
-rightSelect.addEventListener("change", () => {
-  preventDuplicateSelection(rightSelect, leftSelect);
-  translate();
-});
+inputEl.addEventListener("input", translate);
 
-window.addEventListener("resize", updateUnderlines);
-window.addEventListener("load", updateUnderlines);
+// --------------------
+// Init
+// --------------------
+updateUnderline(sourceBar);
+updateUnderline(targetBar);
