@@ -1,87 +1,327 @@
-<script>
-/* ---------------- LANGUAGE STATE ---------------- */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jamalese Translator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
+<style>
+* { box-sizing: border-box; }
+
+:root {
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #111;
+  --muted: #555;
+  --accent: #4b5cff;
+  --border: #d6d9ee;
+  --input: #ffffff;
+}
+
+[data-theme="dark"] {
+  --bg: #070914;
+  --card: #151a33;
+  --text: #f1f3ff;
+  --muted: #aab;
+  --accent: #7c8cff;
+  --border: #2b2f55;
+  --input: #0e1228;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color .4s, color .4s;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 50px auto;
+  padding: 20px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.35);
+  transition: background-color .4s;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+h1 { margin: 0; font-size: 28px; }
+
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switch {
+  position: relative;
+  width: 52px;
+  height: 26px;
+}
+
+.switch input { opacity: 0; }
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #999;
+  border-radius: 26px;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .3s;
+}
+
+input:checked + .slider {
+  background: var(--accent);
+}
+
+input:checked + .slider::before {
+  transform: translateX(26px);
+}
+
+/* ---------- Language Bars ---------- */
+
+.lang-bar {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.lang {
+  background: none;
+  border: none;
+  font-size: 15px;
+  padding: 6px 2px;
+  color: var(--muted);
+  cursor: pointer;
+  position: relative;
+  pointer-events: auto;
+}
+
+.lang.active {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.lang.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+}
+
+/* ---------- Panes ---------- */
+
+.panes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+}
+
+textarea {
+  flex: 1;
+  resize: none;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--text);
+}
+
+.output {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.04);
+  overflow-y: auto;
+}
+
+[data-theme="dark"] .output {
+  background: rgba(255,255,255,.06);
+}
+
+.footer {
+  margin-top: 22px;
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .panes { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="card">
+
+<header>
+  <h1>Jamalese Translator</h1>
+  <div class="toggle-wrap">
+    ☀️
+    <label class="switch">
+      <input type="checkbox" id="darkToggle">
+      <span class="slider"></span>
+    </label>
+    🌙
+  </div>
+</header>
+
+<div class="panes">
+
+  <!-- LEFT -->
+  <div class="pane">
+    <div class="lang-bar">
+      <button class="lang left active" data-lang="jam">Zamœlis</button>
+      <button class="lang left" data-lang="eng">English</button>
+      <button class="lang left" data-lang="auto">Auto</button>
+    </div>
+    <textarea id="input" placeholder="Type text…"></textarea>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="pane">
+    <div class="lang-bar">
+      <button class="lang right active" data-lang="eng">English</button>
+      <button class="lang right" data-lang="jam">Zamœlis</button>
+    </div>
+    <div class="output" id="result"></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span>Powered by <a href="https://newhs.cc/dict" target="_blank">Newhouse Jamalese Dictionary</a></span>
+  <span>Created by <a href="https://github.com/nadfd" target="_blank">nadfd</a></span>
+</div>
+
+</div>
+</div>
+
+<script src="https://newhs.cc/words.js"></script>
+
+<script>
+/* ---------- Build Dictionaries ---------- */
+const engToJam = {}, jamToEng = {};
+
+for (const [jam, engRaw] of dictionary) {
+  const parts = engRaw.split(",");
+  jamToEng[jam] = [];
+  for (let p of parts) {
+    p = p.replace(/\(.*?\)/g,"").trim().toLowerCase();
+    if (!p) continue;
+    jamToEng[jam].push(p);
+    engToJam[p] ??= [];
+    if (!engToJam[p].includes(jam)) engToJam[p].push(jam);
+  }
+}
+
+/* ---------- State ---------- */
 let leftLang = "jam";
 let rightLang = "eng";
 let autoDetected = null;
 
-/* ---------------- BUTTON SETUP ---------------- */
+/* ---------- Helpers ---------- */
+const input = document.getElementById("input");
+const result = document.getElementById("result");
 
-const leftButtons = document.querySelectorAll(".lang.left");
-const rightButtons = document.querySelectorAll(".lang.right");
-
-function setActive(buttons, lang) {
-  buttons.forEach(b => {
-    b.classList.toggle("active", b.dataset.lang === lang);
-  });
+function setActive(btns, lang) {
+  btns.forEach(b => b.classList.toggle("active", b.dataset.lang === lang));
 }
 
-function updateAutoLabel() {
-  const autoBtn = document.querySelector('.lang[data-lang="auto"]');
-  if (!autoBtn) return;
-
-  if (!document.getElementById("input").value.trim()) {
-    autoBtn.textContent = "Auto";
-  } else if (autoDetected) {
-    autoBtn.textContent =
-      (autoDetected === "eng" ? "English" : "Zamœlis") + " · Auto";
-  }
-}
-
-/* ---------------- CLICK HANDLERS ---------------- */
-
-leftButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const lang = btn.dataset.lang;
-
-    if (lang === rightLang) {
-      rightLang = leftLang;
-      setActive(rightButtons, rightLang);
-    }
-
-    leftLang = lang;
-    setActive(leftButtons, leftLang);
-    translateText();
-  });
-});
-
-rightButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    const lang = btn.dataset.lang;
-
-    if (lang === leftLang) {
-      leftLang = rightLang;
-      setActive(leftButtons, leftLang);
-    }
-
-    rightLang = lang;
-    setActive(rightButtons, rightLang);
-    translateText();
-  });
-});
-
-/* ---------------- AUTO DETECTION ---------------- */
-
-function detectLanguageSimple(text) {
-  let jam = 0, eng = 0;
-  const words = text.toLowerCase().split(/\s+/);
-
-  words.forEach(w => {
+function detectLanguage(text) {
+  let jam=0, eng=0;
+  text.toLowerCase().split(/\s+/).forEach(w=>{
     if (jamToEng[w]) jam++;
     if (engToJam[w]) eng++;
   });
-
   return jam >= eng ? "jam" : "eng";
 }
 
-/* ---------------- TRANSLATION ---------------- */
+function translate(text, dict) {
+  return text.split(/\s+/).map(w => dict[w]?.[0] || w).join(" ");
+}
 
+function updateAutoLabel() {
+  const btn = document.querySelector('.lang.left[data-lang="auto"]');
+  if (!btn) return;
+  if (!input.value.trim()) {
+    btn.textContent = "Auto";
+  } else if (autoDetected) {
+    btn.textContent = (autoDetected==="eng"?"English":"Zamœlis") + " · Auto";
+  }
+}
+
+/* ---------- Language Buttons ---------- */
+document.querySelectorAll(".lang.left").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const lang = btn.dataset.lang;
+    if (lang === rightLang) {
+      rightLang = leftLang;
+      setActive(document.querySelectorAll(".lang.right"), rightLang);
+    }
+    leftLang = lang;
+    setActive(document.querySelectorAll(".lang.left"), leftLang);
+    translateText();
+  });
+});
+
+document.querySelectorAll(".lang.right").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const lang = btn.dataset.lang;
+    if (lang === leftLang) {
+      leftLang = rightLang;
+      setActive(document.querySelectorAll(".lang.left"), leftLang);
+    }
+    rightLang = lang;
+    setActive(document.querySelectorAll(".lang.right"), rightLang);
+    translateText();
+  });
+});
+
+/* ---------- Translation ---------- */
 function translateText() {
-  const input = document.getElementById("input").value;
-  const output = document.getElementById("result");
-
-  if (!input.trim()) {
-    output.textContent = "";
+  const text = input.value;
+  if (!text.trim()) {
+    result.textContent = "";
     autoDetected = null;
     updateAutoLabel();
     return;
@@ -90,19 +330,27 @@ function translateText() {
   let from = leftLang;
   let to = rightLang;
 
-  if (leftLang === "auto") {
-    autoDetected = detectLanguageSimple(input);
+  if (from === "auto") {
+    autoDetected = detectLanguage(text);
     from = autoDetected;
     updateAutoLabel();
   }
 
-  const tokens = tokenize(input);
   const dict = from === "jam" ? jamToEng : engToJam;
-
-  output.textContent = translateWithPhrases(tokens, dict);
+  result.textContent = translate(text.toLowerCase(), dict);
 }
 
-/* ---------------- LIVE INPUT ---------------- */
+input.addEventListener("input", translateText);
 
-document.getElementById("input").addEventListener("input", translateText);
+/* ---------- Dark Mode ---------- */
+const toggle = document.getElementById("darkToggle");
+toggle.checked = localStorage.getItem("dark") !== "false";
+document.documentElement.dataset.theme = toggle.checked ? "dark":"light";
+toggle.addEventListener("change", ()=>{
+  document.documentElement.dataset.theme = toggle.checked ? "dark":"light";
+  localStorage.setItem("dark", toggle.checked);
+});
 </script>
+
+</body>
+</html>
