@@ -1,0 +1,17 @@
+.language-row {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.swap-btn {
+  align-self: center;
+  margin: 6px 0;
+}
+
+.panes {
+  grid-template-columns: 1fr;
+}
+
+.pane {
+  height: 240px;
+}
